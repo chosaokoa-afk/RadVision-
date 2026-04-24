@@ -1,0 +1,2161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>RadVision</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#11161d;--bg2:#161d26;--bg3:#1d2632;--card:#18212c;--border:#2a3544;
+  --accent:#7aa2f7;--accent2:#f48c96;--accent3:#9ece6a;
+  --text:#dbe4ef;--text2:#97a4b8;--text3:#677489;
+  --yellow:#d9c173;--red:#ef8a95;--green:#86c98a;
+  --radius:16px;--radius-sm:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;overflow:hidden;}
+.screen{display:none;position:fixed;inset:0;overflow-y:auto;background:var(--bg);}
+.screen.active{display:flex;flex-direction:column;}
+
+/* ── HOME ── */
+.home-header{padding:28px 24px 16px;position:relative;overflow:hidden;}
+.home-header::before{content:'';position:absolute;top:-60px;left:-40px;width:300px;height:300px;background:radial-gradient(circle,rgba(122,162,247,0.15) 0%,transparent 70%);border-radius:50%;}
+.home-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(122,162,247,0.12);border:1px solid rgba(122,162,247,0.28);border-radius:20px;padding:5px 12px;font-size:11px;color:var(--accent);letter-spacing:1px;margin-bottom:12px;font-family:'Space Mono',monospace;position:relative;z-index:1;}
+.home-badge::before{content:'●';font-size:8px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.home-title{font-size:27px;font-weight:900;line-height:1.2;position:relative;z-index:1;margin-bottom:5px;}
+.home-title span{color:var(--accent);}
+.home-sub{font-size:12px;color:var(--text2);position:relative;z-index:1;}
+.subject-section{padding:0 16px 100px;}
+.section-label{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;padding:0 4px 10px;}
+.subj-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:14px;margin-bottom:8px;transition:all 0.18s;-webkit-user-select:none;}
+.subj-card:active{transform:scale(0.98);opacity:0.85;}
+.subj-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.subj-info{flex:1;}
+.subj-name{font-size:14px;font-weight:800;}
+.subj-meta{font-size:11px;color:var(--text2);margin-top:2px;}
+.subj-arrow{color:var(--text3);font-size:16px;}
+
+/* ── PAGE HEADER ── */
+.page-header{padding:52px 20px 14px;display:flex;align-items:center;gap:12px;background:var(--bg);position:sticky;top:0;z-index:10;border-bottom:1px solid var(--border);}
+.back-btn{width:36px;height:36px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;flex-shrink:0;}
+.back-btn:active{opacity:0.6;}
+.page-title{font-size:17px;font-weight:800;}
+.page-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+
+/* ── 과목 상세 ── */
+.subj-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px 16px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 8px;text-align:center;}
+.stat-num{font-size:20px;font-weight:900;font-family:'Space Mono',monospace;}
+.stat-num.blue{color:var(--accent);}
+.stat-num.pink{color:var(--accent2);}
+.stat-num.yellow{color:var(--yellow);}
+.stat-label{font-size:10px;color:var(--text2);margin-top:3px;}
+.menu-section{padding:0 16px 14px;}
+.menu-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:14px;margin-bottom:7px;transition:all 0.18s;-webkit-user-select:none;}
+.menu-card:active{transform:scale(0.98);}
+.menu-card.full{background:linear-gradient(135deg,rgba(122,162,247,0.15),rgba(122,162,247,0.04));border-color:rgba(122,162,247,0.3);}
+.menu-card.random{background:linear-gradient(135deg,rgba(86,182,194,0.15),rgba(86,182,194,0.04));border-color:rgba(86,182,194,0.3);}
+.menu-card.chapter{background:linear-gradient(135deg,rgba(158,206,106,0.14),rgba(158,206,106,0.04));border-color:rgba(158,206,106,0.28);}
+.menu-card.review{background:linear-gradient(135deg,rgba(239,138,149,0.15),rgba(239,138,149,0.04));border-color:rgba(239,138,149,0.3);}
+.menu-card.bookmark{background:linear-gradient(135deg,rgba(217,193,115,0.14),rgba(217,193,115,0.04));border-color:rgba(217,193,115,0.28);}
+.menu-card.wrong{background:linear-gradient(135deg,rgba(239,138,149,0.12),rgba(239,138,149,0.03));border-color:rgba(239,138,149,0.25);}
+.menu-card.memo{background:linear-gradient(135deg,rgba(158,206,106,0.12),rgba(158,206,106,0.03));border-color:rgba(158,206,106,0.24);}
+.menu-card.qa{background:linear-gradient(135deg,rgba(122,162,247,0.1),rgba(122,162,247,0.03));border-color:rgba(122,162,247,0.22);}
+.menu-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.menu-card.full .menu-icon{background:rgba(122,162,247,0.15);color:var(--accent);}
+.menu-card.random .menu-icon{background:rgba(86,182,194,0.15);color:#7fd3df;}
+.menu-card.chapter .menu-icon{background:rgba(158,206,106,0.14);color:var(--accent3);}
+.menu-card.review .menu-icon{background:rgba(239,138,149,0.15);color:var(--red);}
+.menu-card.bookmark .menu-icon{background:rgba(217,193,115,0.14);color:var(--yellow);}
+.menu-card.wrong .menu-icon{background:rgba(239,138,149,0.12);color:var(--red);}
+.menu-card.memo .menu-icon{background:rgba(158,206,106,0.12);color:var(--accent3);}
+.menu-card.qa .menu-icon{background:rgba(122,162,247,0.12);color:var(--accent);}
+.menu-info{flex:1;}
+.menu-name{font-size:13px;font-weight:700;}
+.menu-desc{font-size:10px;color:var(--text2);margin-top:1px;}
+.menu-arrow{color:var(--text3);font-size:16px;}
+.reset-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:0 16px 14px;}
+.reset-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 10px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid rgba(151,164,184,0.28);background:rgba(151,164,184,0.1);color:var(--text);-webkit-user-select:none;}
+.reset-btn:active{opacity:0.6;}
+
+/* ── 챕터 목록 ── */
+.chapter-list{padding:12px 16px 40px;}
+.ch-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px 15px;cursor:pointer;display:flex;align-items:center;gap:11px;margin-bottom:7px;transition:all 0.18s;}
+.ch-item:active{transform:scale(0.98);}
+.ch-badge{min-width:34px;height:24px;border-radius:6px;background:rgba(122,162,247,0.12);border:1px solid rgba(122,162,247,0.22);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent);font-family:'Space Mono',monospace;padding:0 6px;}
+.ch-info{flex:1;}
+.ch-name{font-size:13px;font-weight:600;}
+.ch-meta{font-size:11px;color:var(--text2);margin-top:1px;}
+.ch-wrong-badge{font-size:11px;color:var(--red);background:rgba(239,71,111,0.1);border-radius:6px;padding:2px 7px;font-weight:700;}
+
+/* ── QUIZ ── */
+.quiz-header{padding:48px 18px 12px;background:var(--bg);position:sticky;top:0;z-index:10;border-bottom:1px solid var(--border);}
+.quiz-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.quiz-progress-text{flex:1;text-align:center;font-size:13px;font-weight:700;font-family:'Space Mono',monospace;color:var(--accent);}
+.quiz-btn{width:36px;height:36px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;-webkit-user-select:none;flex-shrink:0;}
+.quiz-btn:active{opacity:0.6;}
+.quiz-btn.bookmark-on{background:rgba(255,209,102,0.15);border-color:rgba(255,209,102,0.5);}
+.progress-bar{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width 0.4s ease;}
+.quiz-badges{display:flex;align-items:center;gap:6px;margin-top:6px;flex-wrap:wrap;}
+.quiz-mode-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--text2);background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:3px 10px;}
+.auto-next-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--accent);background:rgba(122,162,247,0.1);border:1px solid rgba(122,162,247,0.25);border-radius:8px;padding:3px 10px;cursor:pointer;}
+.auto-next-badge:active{opacity:0.7;}
+.auto-next-progress{height:2px;background:var(--bg3);border-radius:1px;overflow:hidden;margin-top:4px;display:none;}
+.auto-next-progress-fill{height:100%;background:var(--accent);border-radius:1px;transition:width linear;}
+
+.quiz-body{padding:16px 18px 110px;}
+
+/* 사진+보기 가로 레이아웃 (넓은 화면) */
+.quiz-content-wrap{display:flex;flex-direction:column;gap:0;}
+@media(min-width:600px){
+  .quiz-content-wrap{flex-direction:row;gap:16px;align-items:flex-start;}
+  .quiz-img-side{flex:0 0 45%;max-width:45%;}
+  .quiz-choice-side{flex:1;min-width:0;}
+}
+.q-img-wrap{margin-bottom:12px;border-radius:var(--radius-sm);overflow:hidden;background:#000;border:1px solid var(--border);}
+.q-img-wrap img{width:100%;max-height:420px;object-fit:contain;display:block;cursor:pointer;}
+@media(min-width:600px){.q-img-wrap img{max-height:500px;}.q-img-wrap{margin-bottom:0;}}
+.q-imgs-row{display:grid;gap:6px;margin-bottom:12px;}
+.q-imgs-row.two{grid-template-columns:1fr 1fr;}
+.q-imgs-row.three{grid-template-columns:1fr 1fr 1fr;}
+.q-imgs-row .img-item{border-radius:var(--radius-sm);overflow:hidden;background:#000;border:1px solid var(--border);}
+.q-imgs-row .img-item img{width:100%;object-fit:contain;display:block;cursor:pointer;}
+.q-imgs-row .img-caption{font-size:9px;color:var(--text3);text-align:center;padding:3px 0;font-family:'Space Mono',monospace;}
+
+/* 정답/오답 배지 */
+.score-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:3px 10px;color:var(--text2);}
+.score-badge .sc-ok{color:var(--green);font-weight:800;}
+.score-badge .sc-fail{color:var(--red);font-weight:800;}
+.img-fullscreen{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:200;align-items:center;justify-content:center;flex-direction:column;}
+.img-fullscreen.show{display:flex;}
+.img-fullscreen img{max-width:100%;max-height:90vh;object-fit:contain;}
+.img-fullscreen-close{position:absolute;top:16px;right:16px;width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;color:#fff;}
+.q-num{font-size:11px;color:var(--text3);margin-bottom:6px;font-family:'Space Mono',monospace;letter-spacing:1px;}
+.q-text{font-size:15px;font-weight:700;line-height:1.6;margin-bottom:16px;color:var(--text);}
+.choices{display:flex;flex-direction:column;gap:9px;}
+.choice-btn{background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:13px 14px;cursor:pointer;transition:all 0.15s;display:flex;align-items:flex-start;gap:10px;text-align:left;-webkit-user-select:none;}
+.choice-btn:active{opacity:0.7;}
+.choice-num{width:26px;height:26px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;font-family:'Space Mono',monospace;color:var(--text2);}
+.choice-text{font-size:13px;line-height:1.5;padding-top:3px;}
+.choice-btn.correct{background:rgba(134,201,138,0.14);border-color:rgba(134,201,138,0.72);}
+.choice-btn.correct .choice-num{background:rgba(134,201,138,0.9);color:#102316;border-color:rgba(134,201,138,0.95);}
+.choice-btn.wrong{background:rgba(239,138,149,0.14);border-color:rgba(239,138,149,0.75);}
+.choice-btn.wrong .choice-num{background:rgba(239,138,149,0.92);color:#fff;border-color:rgba(239,138,149,0.98);}
+.explanation{margin-top:14px;background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius-sm);padding:0;max-height:0;overflow:hidden;transition:max-height 0.4s ease,padding 0.3s ease;}
+.explanation.show{max-height:500px;padding:14px 15px;}
+.ex-result{font-size:14px;font-weight:800;margin-bottom:6px;}
+.ex-result.ok{color:var(--green);}
+.ex-result.fail{color:var(--red);}
+.ex-content{font-size:12px;color:var(--text2);line-height:1.7;}
+.quiz-footer{position:fixed;bottom:0;left:0;right:0;padding:12px 18px 28px;background:linear-gradient(transparent,var(--bg) 40%);display:flex;gap:8px;}
+.nav-btn{flex:1;padding:13px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:14px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;}
+.nav-btn:active{transform:scale(0.97);}
+.btn-prev{background:var(--bg3);color:var(--text2);border:1px solid var(--border);}
+.btn-next{background:var(--accent);color:#fff;flex:2;}
+.btn-next.final{background:var(--accent2);}
+
+/* ── 미니맵 ── */
+.minimap-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:150;align-items:flex-end;justify-content:center;}
+.minimap-overlay.show{display:flex;}
+.minimap-box{background:var(--bg2);border:1px solid var(--border);border-radius:24px 24px 0 0;width:100%;max-width:520px;padding:20px 18px 36px;animation:slideUp 0.3s ease;}
+.minimap-title{font-size:14px;font-weight:800;margin-bottom:4px;}
+.minimap-sub{font-size:11px;color:var(--text2);margin-bottom:14px;}
+.minimap-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;max-height:260px;overflow-y:auto;}
+.mm-cell{height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'Space Mono',monospace;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text2);-webkit-user-select:none;}
+.mm-cell:active{opacity:0.7;}
+.mm-cell.current{border-color:var(--accent);color:var(--accent);background:rgba(122,162,247,0.15);}
+.mm-cell.answered-ok{background:rgba(134,201,138,0.18);border-color:rgba(134,201,138,0.5);color:var(--green);}
+.mm-cell.answered-fail{background:rgba(239,138,149,0.18);border-color:rgba(239,138,149,0.5);color:var(--red);}
+.minimap-close{width:100%;padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;margin-top:12px;}
+.minimap-close:active{opacity:0.6;}
+
+/* ── 자동넘기기 설정 모달 ── */
+.settings-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:160;align-items:flex-end;justify-content:center;}
+.settings-modal.show{display:flex;}
+.settings-box{background:var(--bg2);border:1px solid var(--border);border-radius:24px 24px 0 0;width:100%;max-width:520px;padding:22px 18px 36px;animation:slideUp 0.3s ease;}
+.settings-title{font-size:15px;font-weight:800;margin-bottom:16px;}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);}
+.settings-row:last-child{border-bottom:none;}
+.settings-label{font-size:13px;font-weight:700;}
+.settings-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+.settings-switch{position:relative;width:44px;height:24px;flex-shrink:0;}
+.settings-switch input{opacity:0;width:0;height:0;}
+.settings-slider{position:absolute;inset:0;background:var(--border);border-radius:12px;cursor:pointer;transition:0.3s;}
+.settings-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:0.3s;}
+.settings-switch input:checked + .settings-slider{background:var(--accent);}
+.settings-switch input:checked + .settings-slider::before{transform:translateX(20px);}
+.settings-select{background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-weight:700;padding:6px 10px;font-family:'Noto Sans KR',sans-serif;}
+.settings-fields{transition:opacity 0.2s;}
+.settings-cancel{width:100%;padding:12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;margin-top:14px;}
+.settings-cancel:active{opacity:0.6;}
+
+/* ── 챕터 모드 선택 모달 ── */
+.ch-mode-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:160;align-items:flex-end;justify-content:center;}
+.ch-mode-modal.show{display:flex;}
+.ch-mode-box{background:var(--bg2);border:1px solid var(--border);border-radius:24px 24px 0 0;width:100%;max-width:520px;padding:22px 18px 36px;animation:slideUp 0.3s ease;}
+
+/* ── 빠른정답확인 ── */
+.qa-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:7px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;}
+.qa-item:active{opacity:0.8;}
+.qa-num{min-width:32px;height:24px;border-radius:6px;background:rgba(122,162,247,0.12);border:1px solid rgba(122,162,247,0.22);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent);font-family:'Space Mono',monospace;flex-shrink:0;}
+.qa-text{flex:1;font-size:13px;line-height:1.5;color:var(--text2);}
+.qa-ans{font-size:11px;font-weight:800;color:var(--green);background:rgba(134,201,138,0.12);border-radius:6px;padding:2px 8px;flex-shrink:0;}
+
+/* ── 결과 ── */
+.result-hero{padding:56px 24px 24px;background:linear-gradient(160deg,rgba(122,162,247,0.1) 0%,transparent 60%);text-align:center;border-bottom:1px solid var(--border);}
+.result-score{font-size:58px;font-weight:900;font-family:'Space Mono',monospace;color:var(--accent);line-height:1;margin-bottom:6px;}
+.result-score span{font-size:22px;color:var(--text2);}
+.result-label{font-size:13px;color:var(--text2);margin-bottom:18px;}
+.result-stats{display:flex;gap:16px;justify-content:center;}
+.r-stat{text-align:center;}
+.r-stat-n{font-size:20px;font-weight:800;font-family:'Space Mono',monospace;}
+.r-stat-l{font-size:11px;color:var(--text2);margin-top:2px;}
+.r-stat-n.g{color:var(--green);}
+.r-stat-n.r{color:var(--red);}
+.result-btns{padding:16px 16px 40px;display:flex;flex-direction:column;gap:8px;}
+.r-btn{width:100%;padding:13px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:14px;font-weight:700;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;}
+.r-btn:active{transform:scale(0.98);}
+.r-btn.primary{background:var(--accent);color:#fff;}
+.r-btn.secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border);}
+.r-btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+
+/* ── 오답/북마크 목록 ── */
+.wrong-list{padding:12px 16px 40px;}
+.wrong-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;margin-bottom:7px;}
+.wrong-item:active{opacity:0.8;}
+.wrong-badge{min-width:28px;height:28px;border-radius:8px;background:rgba(239,71,111,0.12);border:1px solid rgba(239,71,111,0.25);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--red);font-family:'Space Mono',monospace;flex-shrink:0;}
+.bm-badge{min-width:28px;height:28px;border-radius:8px;background:rgba(217,193,115,0.12);border:1px solid rgba(217,193,115,0.25);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.wrong-q{font-size:13px;line-height:1.5;flex:1;}
+.wrong-q .tag{display:inline-block;font-size:10px;color:var(--accent2);background:rgba(255,101,132,0.1);border-radius:4px;padding:1px 5px;margin-right:5px;}
+.empty-state{text-align:center;padding:70px 20px;color:var(--text3);}
+.empty-state .icon{font-size:44px;margin-bottom:14px;}
+
+/* ── 암기모드 ── */
+.memo-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;text-align:center;}
+.memo-streak{display:flex;gap:4px;justify-content:center;margin-bottom:12px;}
+.memo-dot{width:10px;height:10px;border-radius:50%;background:var(--border);}
+.memo-dot.filled{background:var(--accent3);}
+.memo-reveal-btn{width:100%;padding:12px;background:rgba(122,162,247,0.15);border:1.5px solid rgba(122,162,247,0.35);border-radius:var(--radius-sm);color:var(--accent);font-size:13px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;}
+.memo-reveal-btn:active{opacity:0.7;}
+
+/* ── toast & modal ── */
+.toast{position:fixed;bottom:86px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:9px 18px;font-size:13px;font-weight:600;color:var(--text);z-index:200;opacity:0;transition:opacity 0.3s;white-space:nowrap;}
+.toast.show{opacity:1;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:flex-end;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:24px 24px 0 0;width:100%;max-width:520px;padding:22px 18px 36px;animation:slideUp 0.3s ease;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-title{font-size:15px;font-weight:800;margin-bottom:5px;}
+.modal-sub{font-size:12px;color:var(--text2);margin-bottom:16px;}
+.modal-btns{display:flex;flex-direction:column;gap:8px;}
+.modal-btn{width:100%;padding:13px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:14px;font-weight:700;font-family:'Noto Sans KR',sans-serif;display:flex;gap:10px;align-items:center;transition:opacity 0.15s;}
+.modal-btn:active{opacity:0.7;}
+.modal-btn.cancel{background:var(--bg3);color:var(--text2);border:1px solid var(--border);justify-content:center;margin-top:3px;}
+
+/* 보기이미지 문제용 번호버튼 */
+.choices-num-only{display:flex;gap:8px;flex-wrap:wrap;padding:0;}
+.choice-num-btn{flex:1;min-width:50px;display:flex;align-items:center;justify-content:center;padding:14px 8px;border-radius:var(--radius-sm);background:var(--card);border:1.5px solid var(--border);cursor:pointer;font-size:16px;font-weight:800;-webkit-user-select:none;}
+.choice-num-btn:active{opacity:0.7;}
+.choice-num-btn .choice-num{width:auto;height:auto;min-width:unset;background:none;border:none;font-size:16px;font-weight:800;color:var(--text);}
+.choice-num-btn.correct{background:rgba(134,201,138,0.14);border-color:rgba(134,201,138,0.72);}
+.choice-num-btn.correct .choice-num{color:rgba(134,201,138,0.9);}
+.choice-num-btn.wrong{background:rgba(239,138,149,0.14);border-color:rgba(239,138,149,0.75);}
+.choice-num-btn.wrong .choice-num{color:rgba(239,138,149,0.92);}
+.qa-filter-btn{flex-shrink:0;padding:5px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.qa-filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.qa-filter-btn:active{opacity:0.7;}
+.settings-time-btn{padding:8px 4px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg3);color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;text-align:center;transition:all 0.15s;font-family:'Noto Sans KR',sans-serif;}
+.settings-time-btn:active{opacity:0.6;}
+.settings-time-btn.active{border-color:var(--accent);background:rgba(122,162,247,0.15);color:var(--accent);}
+
+/* 누적풀기 */
+.cumul-block-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px 15px;cursor:pointer;display:flex;align-items:center;gap:11px;margin-bottom:7px;transition:all 0.18s;}
+.cumul-block-item:active{transform:scale(0.98);}
+.cumul-badge{min-width:36px;height:24px;border-radius:6px;background:rgba(217,193,115,0.15);border:1px solid rgba(217,193,115,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--yellow);font-family:'Space Mono',monospace;padding:0 5px;}
+.cumul-info{flex:1;}
+.cumul-name{font-size:13px;font-weight:600;}
+.cumul-meta{font-size:11px;color:var(--text2);margin-top:1px;}
+.cumul-progress{font-size:11px;color:var(--accent3);background:rgba(67,233,123,0.1);border-radius:6px;padding:2px 7px;font-weight:700;}
+.cumul-mode-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 10px;}
+.cumul-mode-btn{padding:10px;border-radius:12px;cursor:pointer;text-align:center;font-size:13px;font-weight:700;border:2px solid var(--border);background:var(--card);color:var(--text2);transition:all 0.2s;}
+.cumul-mode-btn.active{border-color:var(--accent);background:rgba(122,162,247,0.15);color:var(--accent);}
+.cumul-size-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 16px 10px;}
+</style>
+</head>
+<body>
+
+<!-- ▼ HOME -->
+<div class="screen active" id="homeScreen">
+  <div class="home-header">
+    <div class="home-badge">RAD VISION · 영상문제집</div>
+    <div class="home-title">보면 익숙해진다,<br><span>풀면 내 것이 된다</span></div>
+    <div class="home-sub">X-RAY QUIZ · VISUAL TRAINING</div>
+  </div>
+  <div class="subject-section">
+    <div class="section-label">과목 선택</div>
+    <div id="subjectList"></div>
+  </div>
+</div>
+
+<!-- ▼ 과목 상세 -->
+<div class="screen" id="subjectScreen">
+  <div class="page-header">
+    <div class="back-btn" onclick="goHome()">←</div>
+    <div>
+      <div class="page-title" id="subjectTitle">방사선영상학</div>
+      <div class="page-sub" id="subjectSub">138문제</div>
+    </div>
+  </div>
+  <div class="subj-stats-row">
+    <div class="stat-card"><div class="stat-num blue" id="statTotal">0</div><div class="stat-label">전체 문제</div></div>
+    <div class="stat-card"><div class="stat-num pink" id="statWrong">0</div><div class="stat-label">오답</div></div>
+    <div class="stat-card"><div class="stat-num yellow" id="statBm">0</div><div class="stat-label">북마크</div></div>
+  </div>
+  <div class="menu-section" id="menuSection"></div>
+  <div class="reset-row" id="resetRow">
+    <div class="reset-btn" onclick="confirmResetWrong()">🔄 오답 리셋</div>
+    <div class="reset-btn" onclick="confirmResetBm()">🔖 북마크 리셋</div>
+    <div class="reset-btn" onclick="confirmResetMemo()">🧠 암기 리셋</div>
+  </div>
+</div>
+
+<!-- ▼ 챕터 목록 -->
+<div class="screen" id="chapterScreen">
+  <div class="page-header">
+    <div class="back-btn" onclick="showSubject()">←</div>
+    <div><div class="page-title">챕터 선택</div><div class="page-sub" id="chapterSub"></div></div>
+  </div>
+  <div class="chapter-list" id="chapterList"></div>
+</div>
+
+<!-- ▼ QUIZ -->
+<div class="screen" id="quizScreen">
+  <div class="quiz-header">
+    <div class="quiz-top">
+      <div class="quiz-btn" id="quizBackBtn">←</div>
+      <div class="quiz-progress-text" id="progressText">1 / 1</div>
+      <div class="quiz-btn" id="bookmarkBtn">🔖</div>
+      <div class="quiz-btn" id="settingsBtn" onclick="openAutoNextSettings()" title="설정">⚙️</div>
+      <div class="quiz-btn" id="homeFromQuizBtn" onclick="goHomeFromQuiz()" title="홈">🏠</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="quiz-badges">
+      <div class="quiz-mode-badge" id="modeBadge">📝 풀기</div>
+      <div class="auto-next-badge" id="autoNextBadge">⏱ 자동넘김 OFF</div>
+      <div class="quiz-mode-badge" id="minimapBtn" onclick="openMinimap()" style="cursor:pointer;color:var(--text2);">🗺 맵</div>
+      <div class="score-badge" id="scoreBadge" style="display:none;"></div>
+    </div>
+    <div class="auto-next-progress" id="autoNextProgress"><div class="auto-next-progress-fill" id="autoNextProgressFill" style="width:100%"></div></div>
+  </div>
+  <div class="quiz-body" id="quizBody"></div>
+  <div class="quiz-footer">
+    <button class="nav-btn btn-prev" onclick="prevQ()">이전</button>
+    <button class="nav-btn btn-next" id="nextBtn" onclick="nextQ()">다음</button>
+  </div>
+</div>
+
+<!-- ▼ 결과 -->
+<div class="screen" id="resultScreen">
+  <div class="result-hero">
+    <div class="result-score" id="resultScore">0<span>/0</span></div>
+    <div class="result-label" id="resultLabel">학습 완료</div>
+    <div class="result-stats">
+      <div class="r-stat"><div class="r-stat-n g" id="rCorrect">0</div><div class="r-stat-l">정답</div></div>
+      <div class="r-stat"><div class="r-stat-n r" id="rWrong">0</div><div class="r-stat-l">오답</div></div>
+      <div class="r-stat"><div class="r-stat-n" style="color:var(--accent)" id="rSkip">0</div><div class="r-stat-l">건너뜀</div></div>
+    </div>
+  </div>
+  <div class="result-btns">
+    <button class="r-btn primary" onclick="reviewWrong()">✗ 오답만 다시 풀기</button>
+    <div class="r-btn-row">
+      <button class="r-btn secondary" onclick="showSubject()">과목으로</button>
+      <button class="r-btn secondary" onclick="goHome()">홈으로</button>
+    </div>
+  </div>
+</div>
+
+<!-- ▼ 오답/북마크 목록 -->
+<div class="screen" id="listScreen">
+  <div class="page-header">
+    <div class="back-btn" onclick="showSubject()">←</div>
+    <div><div class="page-title" id="listTitle">오답 목록</div><div class="page-sub" id="listSub"></div></div>
+  </div>
+  <div class="wrong-list" id="wrongList"></div>
+</div>
+
+<!-- ▼ 빠른 정답 확인 -->
+<div class="screen" id="qaScreen">
+  <div class="page-header">
+    <div class="back-btn" onclick="showSubject()">←</div>
+    <div><div class="page-title">빠른 정답 확인</div><div class="page-sub" id="qaSub"></div></div>
+  </div>
+  <!-- 탭: 전체 / 오답만 -->
+  <div style="display:flex;gap:8px;padding:8px 16px 0;">
+    <div id="qaTabAll" onclick="setQaTab('all')" style="flex:1;text-align:center;padding:8px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:var(--accent);color:#fff;border:1.5px solid var(--accent);">전체</div>
+    <div id="qaTabWrong" onclick="setQaTab('wrong')" style="flex:1;text-align:center;padding:8px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:var(--bg3);color:var(--text2);border:1.5px solid var(--border);">오답만</div>
+  </div>
+  <!-- 챕터 필터 -->
+  <div id="qaChapterFilter" style="display:flex;gap:6px;padding:8px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;"></div>
+  <div style="padding:0 16px 40px;" id="qaList"></div>
+</div>
+
+<!-- ▼ 모의고사 설정 -->
+<div class="screen" id="examSetupScreen">
+  <div class="page-header">
+    <div class="back-btn" onclick="showSubject()">←</div>
+    <div><div class="page-title">📝 모의고사 모드</div><div class="page-sub" id="examSetupSub"></div></div>
+  </div>
+  <div style="padding:20px 16px 40px;">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:14px;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:6px;color:var(--text);">문제 수</div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:12px;">전체 <span id="examTotalQ">0</span>문제 중 랜덤 추출</div>
+      <input type="number" id="examQCount" min="1" placeholder="예: 40" style="width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:18px;font-weight:700;font-family:'Space Mono',monospace;padding:12px 16px;outline:none;box-sizing:border-box;" oninput="validateExamInput()">
+      <div id="examQWarn" style="font-size:11px;color:var(--red);margin-top:6px;display:none;">전체 문제 수를 초과할 수 없어요</div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px;">
+      <div style="font-size:13px;font-weight:700;margin-bottom:6px;color:var(--text);">제한 시간 <span style="font-size:11px;font-weight:400;color:var(--text2);">(선택사항)</span></div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:12px;">분 단위로 입력 · 비워두면 시간 제한 없음</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <input type="number" id="examMinutes" min="1" placeholder="예: 30" style="flex:1;background:var(--bg3);border:1.5px solid var(--border);border-radius:10px;color:var(--text);font-size:18px;font-weight:700;font-family:'Space Mono',monospace;padding:12px 16px;outline:none;box-sizing:border-box;">
+        <span style="font-size:14px;font-weight:700;color:var(--text2);">분</span>
+      </div>
+      <!-- 빠른 선택 -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px;">
+        <div onclick="setExamMin(10)" style="padding:7px;text-align:center;border-radius:8px;border:1px solid var(--border);background:var(--bg3);font-size:12px;font-weight:700;cursor:pointer;color:var(--text2);">10분</div>
+        <div onclick="setExamMin(20)" style="padding:7px;text-align:center;border-radius:8px;border:1px solid var(--border);background:var(--bg3);font-size:12px;font-weight:700;cursor:pointer;color:var(--text2);">20분</div>
+        <div onclick="setExamMin(30)" style="padding:7px;text-align:center;border-radius:8px;border:1px solid var(--border);background:var(--bg3);font-size:12px;font-weight:700;cursor:pointer;color:var(--text2);">30분</div>
+        <div onclick="setExamMin(40)" style="padding:7px;text-align:center;border-radius:8px;border:1px solid var(--border);background:var(--bg3);font-size:12px;font-weight:700;cursor:pointer;color:var(--text2);">40분</div>
+      </div>
+    </div>
+    <button onclick="startExam()" style="width:100%;padding:16px;border-radius:var(--radius-sm);border:none;background:var(--red);color:#fff;font-size:16px;font-weight:800;font-family:'Noto Sans KR',sans-serif;cursor:pointer;">📝 시험 시작</button>
+  </div>
+</div>
+
+<!-- ▼ 시간 종료 배너 (퀴즈 화면 위에 오버레이) -->
+<div id="examTimerBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:300;background:rgba(239,71,111,0.95);color:#fff;text-align:center;padding:14px;font-size:15px;font-weight:800;animation:slideDown 0.4s ease;" onclick="closeTimerBanner()">
+  ⏰ 시간 종료! — 탭하여 닫기
+</div>
+<style>
+@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+</style>
+<div class="img-fullscreen" id="imgFullscreen">
+  <div class="img-fullscreen-close" onclick="closeFullscreen()">✕</div>
+  <img id="fullscreenImg" src="" alt="">
+</div>
+
+<!-- ▼ 모달 -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title" id="modalTitle">확인</div>
+    <div class="modal-sub" id="modalSub"></div>
+    <div class="modal-btns" id="modalBtns"></div>
+  </div>
+</div>
+
+<!-- ▼ 미니맵 -->
+<div class="minimap-overlay" id="minimapOverlay" onclick="closeMinimap()">
+  <div class="minimap-box" onclick="event.stopPropagation()">
+    <div class="minimap-title">문제 번호 이동</div>
+    <div class="minimap-sub" id="minimapSub">풀이 현황</div>
+    <div class="minimap-grid" id="minimapGrid"></div>
+    <button class="minimap-close" onclick="closeMinimap()">닫기</button>
+  </div>
+</div>
+
+<!-- ▼ 자동넘기기 설정 -->
+<div class="settings-modal" id="autoNextModal" onclick="closeAutoNextSettings()">
+  <div class="settings-box" onclick="event.stopPropagation()">
+    <div class="settings-title">⚙️ 퀴즈 설정</div>
+    <div class="settings-row">
+      <div>
+        <div class="settings-label">자동넘김</div>
+        <div class="settings-sub">정답 확인 후 자동으로 다음 문제</div>
+      </div>
+      <label class="settings-switch">
+        <input type="checkbox" id="autoNextToggle" onchange="toggleAutoNext(this.checked)">
+        <span class="settings-slider"></span>
+      </label>
+    </div>
+    <div class="settings-fields" id="autoNextFields" style="opacity:.45">
+      <div style="margin-bottom:8px;">
+        <div class="settings-label" style="margin-bottom:8px;">기본 시간 <span style="font-size:11px;color:var(--text2);">정답 시 대기</span></div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;" id="autoNextBaseBtns">
+          <div class="settings-time-btn" data-type="base" data-val="1" onclick="selectTimeSetting('base',1)">1초</div>
+          <div class="settings-time-btn active" data-type="base" data-val="2" onclick="selectTimeSetting('base',2)">2초</div>
+          <div class="settings-time-btn" data-type="base" data-val="3" onclick="selectTimeSetting('base',3)">3초</div>
+          <div class="settings-time-btn" data-type="base" data-val="4" onclick="selectTimeSetting('base',4)">4초</div>
+          <div class="settings-time-btn" data-type="base" data-val="5" onclick="selectTimeSetting('base',5)">5초</div>
+        </div>
+      </div>
+      <div>
+        <div class="settings-label" style="margin-bottom:8px;">오답 추가 시간 <span style="font-size:11px;color:var(--text2);">오답 시 추가</span></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;" id="autoNextExtraBtns">
+          <div class="settings-time-btn" data-type="extra" data-val="0" onclick="selectTimeSetting('extra',0)">+0초</div>
+          <div class="settings-time-btn active" data-type="extra" data-val="1" onclick="selectTimeSetting('extra',1)">+1초</div>
+          <div class="settings-time-btn" data-type="extra" data-val="2" onclick="selectTimeSetting('extra',2)">+2초</div>
+          <div class="settings-time-btn" data-type="extra" data-val="3" onclick="selectTimeSetting('extra',3)">+3초</div>
+        </div>
+      </div>
+    </div>
+    <button class="settings-cancel" onclick="closeAutoNextSettings()">닫기</button>
+  </div>
+</div>
+
+<!-- ▼ 챕터 모드 선택 -->
+<div class="ch-mode-modal" id="chModeModal" onclick="closeChModeModal()">
+  <div class="ch-mode-box" onclick="event.stopPropagation()">
+    <div class="modal-title" id="chModeTitle">CH1 풀기</div>
+    <div class="modal-sub" id="chModeSub">풀기 방식을 선택하세요</div>
+    <div class="modal-btns">
+      <button class="modal-btn" style="background:rgba(122,162,247,0.12);color:var(--accent);border:1px solid rgba(122,162,247,0.3);" onclick="startChQuiz('order')">📋 순서대로</button>
+      <button class="modal-btn" style="background:rgba(86,182,194,0.12);color:#7fd3df;border:1px solid rgba(86,182,194,0.3);" onclick="startChQuiz('random')">🔀 랜덤</button>
+      <button class="modal-btn cancel" onclick="closeChModeModal()">취소</button>
+    </div>
+  </div>
+</div>
+
+<!-- ▼ 누적풀기 화면 -->
+<div class="screen" id="cumulScreen">
+  <div class="page-header">
+    <div class="back-btn" onclick="showSubject()">←</div>
+    <div><div class="page-title">누적 풀기</div><div class="page-sub" id="cumulPageSub"></div></div>
+  </div>
+  <div class="cumul-mode-row">
+    <div class="cumul-mode-btn active" id="cumulOrderBtn" onclick="setCumulMode('order')">📋 순서대로</div>
+    <div class="cumul-mode-btn" id="cumulRandomBtn" onclick="setCumulMode('random')">🔀 랜덤</div>
+  </div>
+  <div style="padding:0 16px 8px;font-size:11px;color:var(--text3);">블록 크기</div>
+  <div class="cumul-size-row" id="cumulSizeBtns">
+    <div class="settings-time-btn" data-size="10" onclick="setCumulSize(10)">10문제</div>
+    <div class="settings-time-btn active" data-size="20" onclick="setCumulSize(20)">20문제</div>
+    <div class="settings-time-btn" data-size="30" onclick="setCumulSize(30)">30문제</div>
+  </div>
+  <div style="padding:0 16px 8px;font-size:11px;color:var(--text3);">앞에서 건너뛸 문제 수</div>
+  <div style="padding:0 16px 10px;display:flex;align-items:center;gap:8px;">
+    <div id="cumulSkipBadge" style="display:none;background:rgba(217,193,115,0.15);border:1px solid rgba(217,193,115,0.3);border-radius:10px;padding:4px 10px;font-size:11px;color:var(--yellow);font-weight:700;cursor:pointer;" onclick="resetCumulSkip()">건너뛰기: <span id="cumulSkipNum">0</span>번 ✕</div>
+    <input type="number" id="cumulSkipInput" min="0" max="200" placeholder="예: 40" style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-family:'Noto Sans KR',sans-serif;padding:6px 12px;width:100px;outline:none;" oninput="updateCumulSkip(this.value)">
+    <span style="font-size:11px;color:var(--text3);">번부터 시작</span>
+  </div>
+  <div class="chapter-list" id="cumulBlockList"></div>
+</div>
+
+<!-- ▼ 암기모드 화면 -->
+<div class="screen" id="memoScreen">
+  <div class="page-header">
+    <div class="back-btn" onclick="showSubject()">←</div>
+    <div><div class="page-title">🧠 암기 모드</div><div class="page-sub" id="memoPageSub"></div></div>
+  </div>
+  <div style="padding:12px 16px 40px;">
+    <div class="section-label" style="padding:0 4px 10px;">풀기 방식 선택</div>
+    <div class="menu-card full" onclick="startMemoAll('order')">
+      <div class="menu-icon" style="background:rgba(122,162,247,0.15);color:var(--accent);">📋</div>
+      <div class="menu-info"><div class="menu-name">전체 순서대로</div><div class="menu-desc">처음부터 순서대로 암기</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="menu-card random" onclick="startMemoAll('random')">
+      <div class="menu-icon" style="background:rgba(86,182,194,0.15);color:#7fd3df;">🔀</div>
+      <div class="menu-info"><div class="menu-name">전체 랜덤</div><div class="menu-desc">무작위로 섞어서 암기</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="menu-card chapter" onclick="showMemoChapterScreen()">
+      <div class="menu-icon" style="background:rgba(158,206,106,0.14);color:var(--accent3);">📂</div>
+      <div class="menu-info"><div class="menu-name">챕터별 풀기</div><div class="menu-desc">챕터를 선택해서 암기</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+  </div>
+</div>
+
+<!-- ▼ 암기모드 챕터 목록 화면 -->
+<div class="screen" id="memoChScreen">
+  <div class="page-header">
+    <div class="back-btn" onclick="showScreen('memoScreen')">←</div>
+    <div><div class="page-title">🧠 챕터별 암기</div><div class="page-sub" id="memoChSub"></div></div>
+  </div>
+  <div class="chapter-list" id="memoChapterList"></div>
+</div>
+
+<!-- ▼ 누적풀기 결과 -->
+<div class="modal-overlay" id="cumulResultModal" onclick="closeCumulResult()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title" id="cumulResultTitle">블록 결과</div>
+    <div class="modal-sub" id="cumulResultSub"></div>
+    <div id="cumulResultWrongList" style="margin:8px 0;max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:5px;"></div>
+    <div class="modal-btns">
+      <button class="modal-btn" id="cumulRetryBtn" style="display:none;background:rgba(239,71,111,0.1);color:var(--red);border:1px solid rgba(239,71,111,0.3);" onclick="retryCumulWrong()">🔄 틀린 문제만 다시</button>
+      <button class="modal-btn" style="background:rgba(122,162,247,0.1);color:var(--accent);border:1px solid rgba(122,162,247,0.3);" onclick="closeCumulResult()">블록 목록으로</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════
+// 이미지 BASE URL — 과목별 폴더
+// ════════════════════════════════════════════
+const REPO_BASE = "https://raw.githubusercontent.com/chosaokoa-afk/RadVision-/main/";
+function img(n) { return REPO_BASE + curSubj.imgFolder + "/" + n + ".png"; }
+function choicesImg(qid) { return REPO_BASE + curSubj.imgFolder + "/문제" + qid + "번.png"; }
+
+// ════════════════════════════════════════════
+// 과목 데이터
+// ════════════════════════════════════════════
+const SUBJECTS = [
+  {
+    key: "xray",
+    name: "방사선영상학",
+    icon: "🦴",
+    imgFolder: "영상학",
+    color: "rgba(122,162,247,0.15)",
+    borderColor: "rgba(122,162,247,0.3)",
+    iconBg: "rgba(122,162,247,0.15)",
+    iconColor: "var(--accent)",
+    chapters: [
+      { id:1, name:"하지 - 발·발목·무릎", range:[1,35] },
+      { id:2, name:"하지 - 고관절·골반·척추", range:[36,53] },
+      { id:3, name:"손·손목·팔꿈치·어깨", range:[54,84] },
+      { id:4, name:"흉부·유방·복부", range:[85,102] },
+      { id:5, name:"두경부·두개골·부비동", range:[103,138] },
+      { id:6, name:"흉부·복부·골반 심화", range:[139,166] },
+      { id:7, name:"사지·척추·두경부 심화", range:[167,203] },
+    ]
+  },
+  {
+    key: "us",
+    name: "초음파기술",
+    icon: "🔊",
+    imgFolder: "초음파",
+    color: "rgba(86,182,194,0.15)",
+    borderColor: "rgba(86,182,194,0.3)",
+    iconBg: "rgba(86,182,194,0.15)",
+    iconColor: "#7fd3df",
+    chapters: [
+      { id:1,  name:"기초 물리·아티팩트 I", range:[1,20] },
+      { id:2,  name:"간·대동맥·프로브 기초", range:[21,42] },
+      { id:3,  name:"복부 장기·도플러 기초", range:[43,65] },
+      { id:4,  name:"복부 심화·태아 기초", range:[66,90] },
+      { id:5,  name:"QA·심장·갑상샘", range:[91,112] },
+      { id:6,  name:"장기별 스캔법·혈관", range:[113,139] },
+      { id:7,  name:"도플러 심화·부인과", range:[140,165] },
+      { id:8,  name:"산과·소아·고환", range:[166,192] },
+      { id:9,  name:"복부 종합 I", range:[193,212] },
+    ]
+  }
+];
+
+// ════════════════════════════════════════════
+// 문제 데이터 (203문제)
+// ════════════════════════════════════════════
+let Q = [
+  {id:1,ch:1,imgs:["1"],q:"(사진 1) 영상의 설명으로 옳은 것은?",c:["허파혈관의 음영을 흐리기 위해 날숨으로 한다.","선예도 증가를 위해서 전후사방향 촬영한다.","Long gray scale이 되게 검사조건을 조절한다.","가슴두께가 작을수록 환자 회전의 중심각은 작게 한다.","근접촬영 시 뒤쪽 갈비뼈가 확대되어 갈비뼈 음영을 흐리게 할 수 있다."],a:5,ex:"① 자연스러운 호흡  ② 후전사방향  ③ 대조도 위주 검사  ④ 중심각은 크게 회전"},
+  {id:2,ch:1,imgs:["2"],q:"(사진 2) 영상의 설명으로 옳은 것은?",c:["접선방향 촬영상이다.","발바닥 면과 IR(수상기)면에 75°가 이루게 배굴한다.","목말받침돌기의 반측면상이 관찰된다.","중심선은 다리 방향으로 40° 되게 한다.","발꿈치뼈 전후측방향 촬영으로 앉은 자세에서 촬영한다."],a:3,ex:"① 측방향  ② 90° 배굴  ④ 머리 방향으로 40°  ⑤ 후전측방향 검사 없는 자세"},
+  {id:3,ch:1,imgs:["3"],q:"(사진 3) 영상의 설명으로 옳은 것은?",c:["Valgus 촬영상이다.","무릎관절 전후방향 안쪽번짐(inversion) 촬영상이다.","무릎관절을 90° 굽힌 상태로만 검사한다.","넙다리뼈를 고정하고 발목을 가쪽으로 stress 준다.","안쪽결인대 손상을 잘 관찰할 수 있다."],a:2,ex:"① Varus  ③ 다양한 각도 검사  ④ 안쪽으로 stress  ⑤ 거쪽결인대 손상을 관찰"},
+  {id:4,ch:1,imgs:["4"],q:"(사진 4) 영상의 설명으로 옳은 것은?",c:["환자의 회전각도는 60°이다.","폐혈관의 음영을 흐리게 하려면 최대한 날숨을 한다.","LAO 자세이다.","왼쪽 거드랑이 갈비뼈가 잘 관찰된다.","후전사방향 촬영은 IR에 밀착 쪽 거드랑이 갈비뼈가 넓게 관찰된다."],a:3,ex:"① 환자의 회전각도는 45°  ② 자연스러운 호흡  ④ 오른쪽 거드랑이 갈비뼈 관찰 용이  ⑤ IR에 먼쪽"},
+  {id:5,ch:1,imgs:["5"],q:"(사진 5) 영상의 설명으로 옳은 것은?",c:["발 축방향 검사이다.","Lewis법 검사 영상이다.","발바닥 면과 IR(수상기)면에 90°가 이루게 배굴한다.","중심선은 셋째 발허리뼈머리를 향해 IR 면에 수직 입사한다.","선자세 검사 영상이다."],a:2,ex:"① 접선방향  ③ 75°  ④ 첫째 발허리뼈머리  ⑤ 앉은 자세, 엎드린 자세"},
+  {id:6,ch:1,imgs:["6"],q:"(사진 6) 영상의 설명으로 옳은 것은?",c:["무릎뼈의 가로골절 관찰에 유리한 촬영법이다.","Knee Tunnel view라고도 한다.","Hughston법의 중심선은 다리쪽으로 45° 입사한다.","Merchant 촬영법은 환자자세를 엎드린 자세로 한다.","Settegast법은 무릎뼈의 반측면상이 나타난다."],a:5,ex:"① 세로골절  ② skyline, sun rise view  ③ 머리쪽으로 45° 입사  ④ Merchant 검사는 앉은 자세"},
+  {id:7,ch:1,imgs:["7"],q:"(사진 7) 영상의 설명으로 옳은 것은?",c:["Holmblad법은 넙다리뼈와 중심선이 70° 이룬다.","Camp-Coventry법은 환자자세를 바로 누운 자세로 한다.","Becler법은 넙다리뼈 장축에 정강뼈가 40~45° 되게 무릎을 구부린다.","Camp-Coventry법의 중심선은 넙다리뼈 장축에 수직 입사한다.","Becler법은 Kneeling 자세를 취한다."],a:3,ex:"① 20°  ② 엎드린 자세  ④ 다리뼈 장축에 수직 입사  ⑤ Holmblad법"},
+  {id:8,ch:1,imgs:["8"],q:"(사진 8) 영상의 설명으로 옳은 것은?",c:["앞십자인대의 손상을 관찰한다.","무릎관절을 항상 90° 굽힌 상태에서 검사한다.","안정된 자세와 움직임에 의한 불선예도를 줄이기 위해 손을 이용한다.","정강뼈의 이동거리가 작은 쪽이 인대이상이 있다.","Posterior draw 촬영상이다."],a:1,ex:"② 다양한 굽인 자세  ③ Telometer 이용  ④ 이동거리 큰쪽이 이상  ⑤ Anterior draw"},
+  {id:9,ch:1,imgs:["9"],q:"(사진 9) 영상의 설명으로 옳은 것은?",c:["후전방향 검사 영상이다.","IR면에 대해 넙다리뼈 축은 45° 이룬다.","IR면에 대해 다리뼈 축은 30° 이룬다.","넙다리뼈와 다리뼈의 축은 25° 이룬다.","중심선은 무릎관절사이 중앙을 향해 머리쪽으로 10° 입사한다."],a:1,ex:"② 25°  ③ 20°  ④ 45°  ⑤ 다리쪽으로 10°"},
+  {id:10,ch:1,imgs:["10"],q:"(사진 10) 영상의 설명으로 옳은 것은?",c:["발목관절을 가쪽으로 45° 기울인다.","목말발배관절(tatonavicular joint)이 촬영목적이다.","중심선은 다리쪽으로 입사한다.","세 가지 각도를 이용한다.","전후축사방향 촬영이다."],a:5,ex:"① 안쪽  ② 목말밑관절  ③ 머리쪽  ④ 네 가지 각도: 10°, 20°, 30°, 40°"},
+  {id:11,ch:1,imgs:["11"],q:"(사진 11) 영상의 설명으로 옳은 것은?",c:["발바닥을 IR면에 대해 45° 되게 한다.","발은 가쪽으로 회전한다.","발목뼈와 발허리뼈가 겹쳐서 관찰되어야 한다.","세로발바닥활이 잘 관찰된다.","입방뼈가 잘 관찰된다."],a:5,ex:"① 30°  ② 안쪽으로 회전  ③ 발목뼈와 발허리뼈가 분리되어 관찰  ④ 40°~45° 안쪽으로 회전 시 가로발바닥활 관찰"},
+  {id:12,ch:1,imgs:["12"],q:"(사진 12) 영상의 설명으로 옳은 것은?",c:["큰구멍 내에 앞침대돌기가 나타나야 한다.","후전측방향 촬영 시 중심선은 다리쪽으로 입사한다.","전후방향 촬영 시 OML이 IR에 수직인 경우 25° 입사한다.","후전측방향 촬영 시 IR중앙에 코부리점(nasion)을 위치한다.","뒤통수뼈가 잘 관찰된다."],a:5,ex:"① 안장등과 뒤침대돌기  ② 머리쪽  ③ 30°"},
+  {id:13,ch:1,imgs:["13"],q:"(사진 13) 영상의 설명으로 옳은 것은?",c:["중심선은 IOML과 수직한다.","정중시상면(MSP)은 IR면에 평행되게 한다.","접선방향 검사 영상이다.","척추사이구멍을 관찰할 수 있다.","중심선을 턱별결합 아래 4cm에 입사한다."],a:1,ex:"② 수직  ④ 큰구멍  ⑤ EAM 앞 2cm"},
+  {id:14,ch:1,imgs:["14"],q:"(사진 14) 영상의 설명으로 옳은 것은?",c:["환자 회전각도는 45°이다.","영치엉덩관절 검사상이다.","촬영자세는 RAO이다.","영치뼈와 궁둥뼈의 관절을 관찰한다.","후전방향 검사 시 검사측을 들어올린다."],a:2,ex:"① 20~25°  ③ RPO, LAO  ④ 영치엉덩관절  ⑤ 전후방향 검사"},
+  {id:15,ch:1,imgs:["15"],q:"(사진 15) 영상의 설명으로 옳은 것은?",c:["Stenvers법 촬영상이다.","주된 관찰목적이 나비굴이다.","MSP가 촬영축과 45°를 이룬다.","이중각도 시 다리쪽으로 15° 앞쪽으로 15° 입사한다.","확대 검사 영상이다."],a:4,ex:"① Law법 검사 영상  ② 꼭지벌집  ③ 단일각도 검사 시 MSP가 촬영축과 15° 회전한다."},
+  {id:16,ch:2,imgs:["16"],q:"(사진 16) 영상의 설명으로 옳은 것은?",c:["눈확귀구멍선(OML)을 IR면에 평행되게 한다.","중심선은 OML에 수직되게 입사한다.","나비굴을 잘 관찰된다.","머리뼈바닥 촬영보다 촬영 조건을 증가시켜야 한다.","광대활이 위턱뼈와 겹쳐져 관찰된다."],a:2,ex:"① IOML  ② IOML  ④ 검사 조건을 감소  ⑤ 광대활이 위턱뼈와 분리되어 관찰"},
+  {id:17,ch:2,imgs:["17"],q:"(사진 17) 영상의 설명으로 옳은 것은?",c:["폐쇄구멍(폐쇄공)이 잘 관찰된다.","골반 전후접선방향 검사 영상이다.","중심선의 입사점은 두덩결합이다.","중심선은 다리쪽으로 약 30° 입사한다.","다리와 발을 바깥쪽으로 15~20° 돌린다."],a:4,ex:"② 골반 전후방향 검사 영상이다.  ③ ASIS  ⑤ 안쪽으로 15~20°"},
+  {id:18,ch:2,imgs:["18"],q:"(사진 18) 영상의 설명으로 옳은 것은?",c:["중심선은 다리쪽으로 입사한다.","두덩결합이 확대되어 관찰된다.","골반 Inlet view 영상이다.","중심선 입사각도는 10°이다.","골반 전후접선방향 촬영상이다."],a:2,ex:"① 중심선은 머리쪽으로 입사  ③ Outlet view  ④ 30° 이상  ⑤ 골반 전후측방향 검사 영상"},
+  {id:19,ch:2,imgs:["19"],q:"(사진 19) 영상의 설명으로 옳은 것은?",c:["큰구멍을 통하여 관찰한다.","솟을뼈가 관찰된다.","검사 시 저작작용을 이용한다.","중심선은 수직입사한다.","입을 다문 상태와 입을 벌린 상태를 비교 촬영한다."],a:4,ex:"① 구강을 통한 Open mouth법"},
+  {id:20,ch:2,imgs:["20"],q:"(사진 20) 영상의 설명으로 옳은 것은?",c:["전후방향 Judd법이다.","큰구멍을 통해 치아돌기를 관찰한다.","저작작용을 한다.","척추용기(솟을뼈)가 잘 관찰된다.","Open Mouth 촬영상이다."],a:2,ex:"① 전후방향 Fuch법, 후전방향 Judd법"},
+  {id:21,ch:2,imgs:["21"],q:"(사진 21) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["Jones법 촬영상이다.","주관절 내측사방향 촬영상이다.","노뼈거친면(요골조면)이 잘 관찰된다.","노뼈머리와 노뼈목이 몸쪽 자뼈와 겹쳐야 한다.","손바닥을 아래로 엎침 하여 먼 쪽 위팔뼈와 팔꿈치관절이 45° 되게 한다."],a:3,ex:""},
+  {id:22,ch:2,imgs:["21"],q:"(사진 21) 영상의 (다)에 관한 설명으로 옳은 것은?",c:["팔꿈치관절 공간이 잘 나타나야 한다.","노뼈머리와 노뼈목이 몸쪽 자뼈와 겹쳐야 한다.","주관절 전후자세에서 전체 팔을 가쪽으로 돌린다.","아래팔과 손바닥을 뒤침(회외)하여 IR면 위에 놓는다.","갈고리돌기(구상돌기)가 팔꿈치의 사방향 영상으로 나타나야 한다."],a:2,ex:"⑤ 외측방향"},
+  {id:23,ch:2,imgs:["21"],q:"(사진 21) 영상에 관한 설명으로 옳은 것은?",c:["(가)는 주관절 내측사방향 촬영상이다.","(나)는 주관절 내측사방향 촬영상이다.","(나)는 주관절 외측사방향 촬영상이다.","(다)는 주관절 전후방향 촬영상이다.","(다)는 주관절 외측사방향 촬영상이다."],a:3,ex:""},
+  {id:24,ch:2,imgs:["22"],q:"(사진 22) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["아래코선반뼈가 잘 관찰된다.","후전방향 촬영 시 다리쪽으로 25~30° 입사하면 이마뼈가 잘 관찰된다.","두개골 후전방향 촬영 시 AML이 IR면에 수직되게 한다.","MSP를 IR면에 평행하게 한다.","후전방향 시 다리쪽으로 15°를 입사하면 눈확이 눈확 아래 1/3에 위치한다."],a:1,ex:"② 수직입사하면 이마뼈 관찰  ③ OML이 IR면에 수직  ④ MSP를 IR에 수직  ⑤ 아래 1/3"},
+  {id:25,ch:2,imgs:["22"],q:"(사진 22) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["전후방향 촬영 시 아래턱뼈(mandible)가 더 작게 나타난다.","중심선이 머리쪽으로 15° 입사 시 눈확위모서리와 바위능선이 눈확 내에 겹쳐야 한다.","이마뼈(frontal bone) 검사가 목적일 경우는 코부리점을 향해 중심선을 수직 입사한다.","후전방향 촬영 시 관상봉합(coronal suture)과 시옷봉합(lambdoid suture)의 간격이 넓게 촬영 된다.","전후방향 촬영 시 원형구멍(foramen rotundum, 정원공)을 표현하려면 중심선을 발쪽으로 25~30° 입사한다."],a:3,ex:""},
+  {id:26,ch:2,imgs:["22"],q:"(사진 22) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["앞, 뒤 침대돌기가 분리되어 나타나야 한다.","눈확귀구멍(OML)이 IR의 가로축에 평행한다.","안장등(dorsum sellae)은 회전되어 나타나야 한다.","중심선은 바깥귀길(EAM) 아래쪽 5cm점을 향해 수직 입사한다.","좌우 앞침대돌기(anterior clinoid process)가 분리되어 나타나야 한다."],a:1,ex:""},
+  {id:27,ch:2,imgs:["23"],q:"(사진 23) 영상의 설명으로 옳은 것은?",c:["빗장뼈가 허파꼭대기 위에 나타나야 한다.","병변이 염쪽인지 벽쪽인지 구분이 용이하다.","심장 음영의 확대 방지를 위해 전·후방향 촬영한다.","어깨뼈의 바깥모서리가 폐야와 겹쳐 나타나야 한다.","심음영과 허파음영의 농도차를 작게 하기 위해 고관전압촬영을 한다."],a:5,ex:"① 아래  ② 왼쪽인지 오른쪽인지  ③ 후·전방향  ④ 안쪽모서리"},
+  {id:28,ch:2,imgs:["24"],q:"(사진 24) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["Ball-catcher 자세이다.","손 후전사방향 촬영이다.","손과 아래팔이 IR의 단축에 일치되게 한다.","손허리손가락관절(중수지절관절)이 IR(수상기)에 45°를 이룬다.","제3손허리손가락관절(제3중수지절관절)을 향하여 IR에 수직 입사한다."],a:5,ex:""},
+  {id:29,ch:2,imgs:["24"],q:"(사진 24) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["Norgaard법이다.","손바닥을 뒤침(회외)시킨다.","류마티스성 관절염 초기를 진단하는 촬영법이다.","환자가 손바닥을 충분히 펼 수 없을 때에는 전후방향자세로 촬영한다.","제3손허리손가락관절(제3중수지절관절)을 향하여 IR에 수직 입사한다."],a:5,ex:""},
+  {id:30,ch:2,imgs:["24"],q:"(사진 24) 영상의 (다)에 관한 설명으로 옳은 것은?",c:["연부조직은 관찰할 필요가 없다.","양 손을 반엎침(반회내) 자세로 하여 IR면 위에 놓는다.","자뼈(척골) 측면이 아래로 하는 촬영에서는 신전과 굴곡 자세를 비교한다.","손 허리뼈(중수골) 양 손사이의 중앙점을 향하여 IR면에 대해 수직 입사한다.","관절염에서 뼈의 투과성이 높은 경우 관전압, 관전류 모두를 평소보다 올려준다."],a:4,ex:""},
+  {id:31,ch:2,imgs:["25"],q:"(사진 25) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["콩알뼈, 세모뼈, 갈고리뼈 등의 병변 관찰에 유리하다.","자뼈 측면의 관절공간 골절, 인대손상 등 병변의 유무를 관찰한다.","손목 간 공간과 손목관절을 더 잘 보기 위하여 전후방향촬영을 한다.","제3손허리손가락관절(제3중수지절관절)을 향하여 IR에 수직 입사한다.","Stecher 변형법인 경우 촬영대 위에 손목을 수평으로 놓고 손 쪽으로 20° 입사한다."],a:3,ex:""},
+  {id:32,ch:2,imgs:["25"],q:"(사진 25) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["손바닥을 엎침(회내)하여 IR면에 수직 입사한다.","노뼈(요골)측면의 관절공간이 열린 상태로 보이도록 한다.","안쪽 손목뼈 인접한 관절공간이 열린 상태로 보이도록 한다.","콩알뼈(두상골)가 인접한 손목뼈로부터 분리되어 나타나야 한다.","양쪽 봇돌기를 축지한 후 자뼈(척골), 노뼈(요골)를 겹쳐 촬영한다."],a:5,ex:""},
+  {id:33,ch:2,imgs:["25"],q:"(사진 25) 영상의 (다)에 관한 설명으로 옳은 것은?",c:["손바닥을 엎침(회내)하여 IR면에 45° 되도록 한다.","안쪽 손목뼈에 인접한 관절공간이 열린 상태로 보여야 한다.","IR면 중앙에 20° 블록을 팔꿈치 쪽으로 기울여 놓고 촬영한다.","콩알뼈(두상골)가 인접한 손목뼈로부터 분리되어 나타나야 한다.","손배뼈를 골절선의 방향에 따라 선명한 영상을 위해서 팔꿈관절을 향해 10° 입사한다."],a:1,ex:""},
+  {id:34,ch:2,imgs:["26"],q:"(사진 26) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["Gaynor-Hart법 촬영상이다.","손목을 최대한 자뼈 굽힘 자세가 될 때 까지 돌려준다.","입사점은 셋째 손허리뼈 저부에서 2.5cm 먼 쪽을 향해 입사한다.","입사점은 손목관절 아래에서 위로 4cm으로 몸쪽을 향해 45° 입사한다.","안쪽 손목뼈에 인접한 관절공간이 열린 상태로 보이도록 손목관절을 굽힌다."],a:2,ex:""},
+  {id:35,ch:2,imgs:["26"],q:"(사진 26) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["Clements-Nakayama법 촬영상이다.","큰마름뼈(대능형골)를 향해 먼쪽으로 45° 되게 입사한다.","갈고리뼈(유두골)와 콩알뼈(두상골)의 음영이 겹치는 것을 막아야 한다.","안쪽 손목뼈에 인접한 관절공간이 열린 상태로 보이도록 손목관절을 굽힌다.","Stecher 변형법인 경우 촬영대 위에 손목을 수평으로 놓고 손 쪽으로 20° 입사한다."],a:4,ex:""},
+  {id:36,ch:2,imgs:["27"],q:"(사진 27) 영상의 설명으로 옳은 것은?",c:["골절이나 탈구가 의심되는 경우 촬영한다.","자연스러운 호흡을 통해 폐음영을 흐리게 한다.","거리는 확대 방지를 위해 180cm에서 촬영한다.","접시오목과 관계된 몸쪽 위팔뼈의 정면상을 관찰한다.","중심선의 입사각도는 팔의 벌린 정도에 따라 결정한다."],a:5,ex:"① 골절·탈구 시 팔을 벌려야 하므로 곤란  ② 멈춘 상태  ③ 100cm  ④ 측면상"},
+  {id:37,ch:2,imgs:["28"],q:"(사진 28) 영상의 설명으로 옳지 않은 것은?",c:["유두의 측면상이 나타나야 한다.","유방의 기본촬영법 중 하나이다.","Mediolateral oblique view라고 한다.","유방 내측조직을 가장 많이 포함시키는 촬영법이다.","Inframammary fold(유방하 주름)가 포함되어야 한다."],a:4,ex:"유방 내측조직을 가장 많이 포함하는 촬영법은 CC(상하 방향)촬영법이다."},
+  {id:38,ch:2,imgs:["29"],q:"(사진 29) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["눈확귀구멍선(OML)이 IR면에 수직을 이룬다.","후전축방향 촬영 시 중심선을 발쪽으로 입사한다.","후전축방향 촬영 시 바위능선이 비대칭 되어야 한다.","전후축방향 촬영 시 중심선을 발쪽으로 30° 하게 되면 앞침대돌기가 관찰된다.","전후축방향 촬영 시 중심선이 발쪽으로 37° 하게 되면 뒤통수뼈에서 뒤침대돌기가 관찰된다."],a:4,ex:""},
+  {id:39,ch:2,imgs:["29"],q:"(사진 29) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["연골부분의 관용도를 좋게 하기 위해 고관전압 촬영을 한다.","선예도를 향상시키기 위해 격자를 사용한다.","중심선은 코끝점(acanthion)을 향해 수직입사한다.","비교하기 위하여 일반적으로 양쪽을 촬영한다.","눈확아래귀구멍선(IOML)이 IR면에 수직이다."],a:4,ex:"① 저관전압  ② 격자 사용 안함  ③ 코부리점에서 아래로 1~2cm  ⑤ IOML이 IR면 가로측에 평행"},
+  {id:40,ch:2,imgs:["29"],q:"(사진 29) 영상의 (가), (나)에서 공통으로 관찰되지 않는 구조물은?",c:["안장등(dorsum sella)","턱뼈가지(ramus of mandible)","큰구멍(foramen magnum, 대공)","꼭지벌집(mastoid air cell, 유돌벌집)","뒤침대돌기(posterior clinoid process)"],a:3,ex:""},
+  {id:41,ch:3,imgs:["30"],q:"(사진 30) 영상의 설명으로 옳은 것은?",c:["Beclere법은 Kneeling 자세를 취한다.","Sky line view, Sun rise view 라고도 한다.","Settegast법은 무릎뼈의 반측면상이 나타난다.","Camp-Coventry법은 곡면카세트를 사용할 수 있다.","Holmblad법의 중심선은 정강뼈의 용기사이오목을 향해 수직 입사한다."],a:5,ex:""},
+  {id:42,ch:3,imgs:["31"],q:"(사진 31) 영상의 설명으로 옳은 것은?",c:["Hicky법은 중심선을 수직 입사한다.","대조도를 높이기 위해 저관전압을 사용한다.","큰돌기와 넙다리뼈 목과 분리되어 나타나야 한다.","검사쪽 넙다리뼈는 겹침을 방지하기 위해 들어준다.","피사체에 두께로 인하여 low mA-long sec 방법을 사용한다."],a:3,ex:""},
+  {id:43,ch:3,imgs:["32"],q:"(사진 32) 영상의 설명으로 옳은 것은?",c:["중심선속을 뒤쪽으로 15°, 다리쪽으로 15° 입사한다.","Stenvers법 촬영상이다.","중심선은 다리쪽으로 12° 입사한다.","검사쪽과 검사 반대쪽 꼭지벌집이 분리되어야 한다.","머리를 촬영측으로 15° 회전하고 중심선을 머리쪽으로 15° 입사한다."],a:4,ex:"① 앞쪽으로 15°, 다리쪽으로 15°  ② Law법  ⑤ 다리쪽으로 15°"},
+  {id:44,ch:3,imgs:["33"],q:"(사진 33) 영상의 설명으로 옳은 것은?",c:["IOML을 IR면에 평행되게 한다.","큰구멍 안에 안장등과 앞침대돌기가 나타난다.","OML이 IR면에 수직일 때 중심선은 발쪽으로 37° 입사한다.","바위능선을 관찰할 수 있다.","비만환자는 전후방향으로 촬영한다."],a:4,ex:"① 수직  ② 뒤침대돌기  ③ 30°  ⑤ 후전방향"},
+  {id:45,ch:3,imgs:["34"],q:"(사진 34) 영상의 설명으로 옳은 것은?",c:["가로돌기구멍이 잘 관찰된다.","RPO 촬영상이다.","Pawlow법 촬영상이다.","오른쪽 척추사이구멍을 관찰한다.","양쪽 어깨가 분리되지 않는 경우에는 발쪽으로 5° 입사한다."],a:2,ex:""},
+  {id:46,ch:3,imgs:["35"],q:"(사진 35) 영상의 설명으로 옳은 것은?",c:["IR중앙에 EAM 앞쪽으로 2.5cm을 위치한다.","입을 벌린 상태이다.","검사쪽 턱관절과 검사 반대쪽 턱관절이 겹쳐져야 한다.","턱관절 측측방향 촬영상이다.","중심선은 검사쪽 턱관절을 향해 머리쪽으로 25~30° 입사한다."],a:4,ex:"① EAM 앞 1.3cm, 아래 2.5cm  ② 다문 상태  ③ 분리  ⑤ 다리쪽으로 25~30°"},
+  {id:47,ch:3,imgs:["36"],q:"(사진 36) 영상의 설명으로 옳은 것은?",c:["촬영거리는 180cm에서 촬영한다.","척추사이관절이 주된 관찰목적이다.","관상면이 IR에 70°가 되도록 회전시킨다.","호흡은 충분한 들숨한 다음 멈추고 촬영한다.","RPO에서는 IR면에 먼쪽 돌기사이관절이 잘 관찰된다."],a:5,ex:"① 100cm  ② 돌기사이관절  ③ 70°  ④ 날숨"},
+  {id:48,ch:3,imgs:["37"],q:"(사진 37) 영상의 설명으로 옳은 것은?",c:["Open mouth 촬영상이다.","척추용기(솟을뼈)가 잘 관찰된다.","전후방향 촬영상으로 Judd법이다.","큰구멍안에 치아돌기를 관찰할 수 있다.","엎드린 자세에서는 IOML이 IR과 37°가 되도록 조정한다."],a:4,ex:"③ 후전방향 Judd법  ⑤ OML이 IR과 37°"},
+  {id:49,ch:3,imgs:["38"],q:"(사진 38) 영상의 설명으로 옳은 것은?",c:["저관전압으로 촬영한다.","엎드린 자세에서 촬영한다.","넙다리뼈목이 큰돌기와 겹쳐 나타난다.","IR과 넙다리뼈목은 평행이 되도록 한다.","넙다리뼈 머리, 목의 정면상을 관찰한다."],a:4,ex:"① 고관전압  ② 바로 누운 자세  ③ 분리  ⑤ 측면상"},
+  {id:50,ch:3,imgs:["39"],q:"(사진 39) 영상의 설명으로 옳은 것은?",c:["IPL이 IR에 수직한다.","MSP가 IR에 평행한다.","IOML이 IR에 수직한다.","MSP를 IR 중심에 일치시킨다.","OML이 IR 가로축에 평행한다."],a:4,ex:"① IPL이 IR 가로축에 평행  ② MSP가 IR에 수직  ⑤ OML이 IR에 수직"},
+  {id:51,ch:3,imgs:["40"],q:"(사진 40) 영상의 설명으로 옳은 것은?",c:["손목굴이 관찰된다.","수근관 축방향 촬영이다.","손바닥의 장축에 대해 45° 입사한다.","상하방향 검사 시 손등꺾기를 시킨다.","콩알뼈와 갈고리뼈는 겹쳐져 관찰된다."],a:1,ex:"② 접선방향  ③ 25~30°  ④ 하상방향  ⑤ 분리"},
+  {id:52,ch:3,imgs:["41"],q:"(사진 41) 영상의 설명으로 옳은 것은?",c:["수근관 축방향 촬영상이다.","손등이 촬영대에 닿도록 한다.","손바닥쪽 손목뼈 관찰이 용이하다.","손바닥의 장축에 대해 25~30° 입사한다.","손목의 뒷면과 손허리뼈바닥이 겹쳐야 한다."],a:2,ex:"① 접선방향  ③ 손등쪽  ④ 45°  ⑤ 겹치지 않고"},
+  {id:53,ch:3,imgs:["42"],q:"(사진 42) 영상의 설명으로 옳은 것은?",c:["섬유소는 3개 이상 관찰되어야 한다.","석회화 관찰 시 확대경을 사용하지 않는다.","팬텀 촬영 필름의 농도는 1.4 이하여야 한다.","최초 정밀검사 날짜로부터 1년마다 시험한다.","전체 모조 병소는 10개 이하로 관찰되어야 한다."],a:3,ex:""},
+  {id:54,ch:3,imgs:["43"],q:"(사진 43) 영상의 설명으로 옳은 것은?",c:["용기사이오목 접선방향 촬영상이다.","Settegast법은 환자 자세를 엎드린 자세로 한다.","Hughston법의 중심선은 다리쪽으로 45° 입사한다.","Merchant 촬영법은 환자 자세를 엎드린 자세로 한다.","Holblad법의 중심선은 넙다리뼈 용기사이오목을 향해 수직입사한다."],a:2,ex:""},
+  {id:55,ch:3,imgs:["44"],q:"(사진 44) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["a는 발배뼈이다.","Mortise법 촬영상이다.","발목관절 전후방향 촬영상이다.","다리쪽으로 15°를 입사한다.","관용도를 높이기 위해 고관전압 촬영을 한다."],a:3,ex:"① a는 목말뼈  ② 전후방향  ④ 수직  ⑤ 저관전압"},
+  {id:56,ch:3,imgs:["44"],q:"(사진 44) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["b는 목말뼈이다.","발을 안쪽으로 15° 돌린다.","족관절 전후 외측사방향 촬영상이다.","목말종아리(talofibular)관절이 겹쳐서 나타나야 한다.","Broden법 촬영상이다."],a:2,ex:"① b는 발배뼈  ③ Mortise법  ④ 분리"},
+  {id:57,ch:3,imgs:["45"],q:"(사진 45) 영상의 설명으로 옳은 것은?",c:["큰구멍(대공) 안에 안배와 뒤침대돌기가 관찰된다.","중심선은 OML에 대해 수직 입사한다.","나비굴이 관찰된다.","아래턱뼈 관절돌기가 바위부 뒤쪽에서 관찰된다.","중심선은 턱뼈결합 아래 4cm를 통과한다."],a:3,ex:"② IOML  ④ 앞쪽  ⑤ EAM앞 2cm"},
+  {id:58,ch:3,imgs:["46"],q:"(사진 46) 영상의 설명으로 옳은 것은?",c:["격자 사용 시 Cut off를 이용한다.","고관절 측측방향 촬영이다.","Hicky법으로 머리쪽으로 20~25° 입사한다.","RPO 영상이다.","후전사방향 촬영시 거상쪽 엉덩뼈 날개가 넓게 나타난다."],a:5,ex:"① 주의  ② 골반 전(후)사방향  ④ LPO"},
+  {id:59,ch:3,imgs:["47"],q:"(사진 47) 영상의 설명으로 옳은 것은?",c:["앞쪽, 뒤쪽 관절용기가 겹쳐야 된다.","무릎 굽힘 각도에 따라 관절강의 용적이 변화가 있다.","관절주위 근육들의 이완을 위해 무릎관절을 최대한 편다.","슬관절 외내측방향 촬영 시 중심선 머리쪽으로 5~7° 입사한다.","정강뼈 가까운 쪽에 고정용구를 사용하면 촬영이 효과적이다."],a:2,ex:""},
+  {id:60,ch:3,imgs:["48"],q:"(사진 48) 영상의 설명으로 옳은 것은?",c:["가쪽번짐 촬영상이다.","발을 내반한 촬영상이다.","가쪽옆면인대 손상을 잘 관찰할 수 있다.","관찰 인대는 무릎관절이 과도하게 굽혀짐을 방지한다.","무릎관절을 90° 굽힌 상태에서 검사하면 관절강 용적이 넓어진다."],a:1,ex:""},
+  {id:61,ch:4,imgs:["49"],q:"(사진 49) 영상의 설명으로 옳은 것은?",c:["가쪽번짐 촬영상이다.","안쪽결인대 손상을 관찰한다.","Valgus 촬영상이다.","증상이 있는 쪽만 검사한다.","무릎관절을 20° 굽힌 상태에서 검사하면 관절강 용적이 넓어진다."],a:5,ex:""},
+  {id:62,ch:4,imgs:["50"],q:"(사진 50) 영상의 설명으로 옳은 것은?",c:["궁둥뼈 결절이 관찰된다.","Cut off를 사용하여 선량을 줄인다.","IR과 넙다리뼈목의 장축은 수직한다.","촬영부위가 두꺼워서 장시간 조사를 한다.","넙다리뼈목과 큰결절이 겹쳐져서 관찰되어야 한다."],a:1,ex:""},
+  {id:63,ch:4,imgs:["51"],q:"(사진 51) 영상의 설명으로 옳은 것은?",c:["끌어당기기 stress 촬영상이다.","움직임이 작은 무릎관절이 이상이 있는 쪽이다.","무릎관절을 다양하게 굽힌 상태에서 검사할 수 있다.","무릎관절의 좌, 우 요동을 막는 인대 손상을 관찰한다.","뒤쪽 밀어내기 촬영으로 앞십자인대의 안정성과 손상을 관찰한다."],a:3,ex:""},
+  {id:64,ch:4,imgs:["52"],q:"(사진 52) 영상의 설명으로 옳은 것은?",c:["발배뼈(주상골)가 잘 관찰된다.","발목굴(sinus tarsi)이 잘 나타난다.","제 5발허리뼈 과농도에 주의해야 한다.","발은 안쪽으로 회전하고 발바닥을 IR면에 대해 30° 되게 한다.","셋째 쐐기뼈와 발허리뼈 각각의 사이의 관절공간이 잘 나타난다."],a:1,ex:""},
+  {id:65,ch:4,imgs:["53"],q:"(사진 53) 영상의 설명으로 옳은 것은?",c:["입방뼈가 관찰된다.","가로발바닥활이 잘 관찰된다.","누운자세 체중부하검사이다.","중심선은 제1쐐기뼈에 향해 입사한다.","종아리뼈가 정강이뼈 앞쪽에 위치한다."],a:1,ex:""},
+  {id:66,ch:4,imgs:["54"],q:"(사진 54) 영상의 설명으로 옳은 것은?",c:["종자골 측측방향 촬영이다.","셋째 발허리뼈 머리에 수직입사한다.","발바닥면과 IR이 75°를 이루게 한다.","Lewis법은 OFD가 커 종자뼈가 확대된다.","Holly법은 발가락을 배굴하여 IR면에 밀착한다."],a:3,ex:""},
+  {id:67,ch:4,imgs:["55"],q:"(사진 55) 영상의 설명으로 옳은 것은?",c:["발을 가쪽번짐한다.","양쪽 비교검사로 넓은 공간이 이상이 있다.","Varus 검사 영상이다.","수술 전에만 검사한다.","목말종아리인대 손상을 주로 관찰한다."],a:2,ex:""},
+  {id:68,ch:4,imgs:["56"],q:"(사진 56) 영상의 설명으로 옳은 것은?",c:["Telometer를 사용하면 환자 움직임을 방지할 수 있다.","가쪽번짐 영상이다.","Valgus 촬영상이다.","목말정강이인대 손상이 의심되는 경우 실시한다.","양쪽에 다른 압력을 가해야 한다."],a:1,ex:""},
+  {id:69,ch:4,imgs:["57"],q:"(사진 57) 영상의 설명으로 옳은 것은?",c:["넙다리뼈가 IR과 25°를 이룬다.","Rogenberg 촬영상이다.","True AP 촬영을 위해 발은 안쪽은 3~5° 돌려준다.","누운자세는 선자세에 비해 관절용적이 크게 나타난다.","수술 전에만 검사한다."],a:3,ex:""},
+  {id:70,ch:4,imgs:["58"],q:"(사진 58) 영상의 설명으로 옳은 것은?",c:["Broden법이라고 한다.","IR에 대해 다리뼈 축은 25°를 이룬다.","넙다리뼈와 다리뼈의 축은 25°를 이룬다.","슬관절 선자세 체중부하 전후방향 촬영상이다.","십자인대의 부착부위의 박리골절도 관찰할 수 있다."],a:2,ex:""},
+  {id:71,ch:4,imgs:["59"],q:"(사진 59) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["a는 입방뼈(cuboid)이다.","b는 발배뼈(navicular)이다.","종족궁 축방향(axial) 촬영이다.","선 자세에서 가로발바닥활의 구조적 상태를 관찰한다.","중심선은 다섯째발허리뼈(중족골) 바닥을 향해 입사한다."],a:5,ex:""},
+  {id:72,ch:4,imgs:["59"],q:"(사진 59) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["세 가지 각도를 이용한다.","중심선은 다리쪽으로 입사한다.","발목관절을 가쪽으로 45° 기울인다.","목말발배관절(talonavicular joint)이 촬영목적이다.","10° 촬영 시 목말밑관절 뒤쪽 관절면의 뒷 부분이 잘 관찰된다."],a:5,ex:""},
+  {id:73,ch:4,imgs:["59"],q:"(사진 59) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["목말밑관절 상하 사방향촬영이다.","발바닥면과 IR면이 75°가 이루게 한다.","발목관절을 수직을 유지하고 발을 바닥으로 편다.","40° 촬영 시 목말밑관절 뒤쪽 관절면의 뒷 부분이 잘 관찰된다.","발꿈치뼈(종골)의 뒤쪽 관절면의 변형성 질환을 관찰할 수 있다."],a:5,ex:""},
+  {id:74,ch:4,imgs:["60"],q:"(사진 60) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["선 자세 촬영은 척추사이관절이 명확하게 나타난다.","척추의 생리적 만곡을 확대하기 위해 무릎을 굽힌다.","호흡은 깊은 들숨(심흡기) 후 멈춘 상태에서 촬영한다.","선 자세 촬영은 움직임에 의한 불선예도를 줄일 수 있다.","엎드린 자세 촬영은 바로 누운 자세 촬영에 비하여 허리뼈 전체를 상세히 볼 수 있다."],a:5,ex:""},
+  {id:75,ch:4,imgs:["60"],q:"(사진 60) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["호흡은 깊은 들숨(심흡기) 후 멈춘 상태에서 촬영한다.","환자 통증이 있는 반대쪽을 IR면에 밀착시켜 촬영한다.","척추가 IR면에 평행되지 않으면 중심선은 수직 입사한다.","할레이션 포그(halation fog)에 대조도 저하 방지를 위해 등쪽에 납판을 둘 수 있다.","가슴우리(흉곽) 아래쪽 밑에 고정용구를 받치지 않으면 중심선을 머리쪽으로 입사한다."],a:4,ex:""},
+  {id:76,ch:4,imgs:["60"],q:"(사진 60) 영상의 (다)에 관한 설명으로 옳은 것은?",c:["IR면에 대해서 정중 이마면이 60° 되게 한다.","호흡은 깊은 들숨(심흡기) 후 멈춘 상태에서 촬영한다.","RAO, LAO 자세에서는 IR면 가까운 쪽 돌기가 잘 나타난다.","Scotty dog sign에서 눈에 해당하는 부위는 고리판(lamina)이다.","척추분리증(spondylolysis)은 Scotty dog으로 목 부위인 잘록한 부분(협부)에 열극이 나타난다."],a:5,ex:""},
+  {id:77,ch:5,imgs:["61"],q:"(사진 61) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["아래쪽 허파가 넓게 나타나야 한다.","허파꼭대기가 빗장뼈 위쪽에 위치해야 한다.","폐첨 척추전만(lordosis, 척주앞굽음증) 촬영상이다.","환자는 수직 격자장치에서 약 30cm 떨어진 후전방향으로 세운다.","상체와 IR면이 이루는 각이 30° 이하일 경우 중심선은 다리방향으로 입사한다."],a:3,ex:""},
+  {id:78,ch:5,imgs:["61"],q:"(사진 61) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["오른쪽만 관찰한다.","오른쪽에 air-fluid level이 관찰된다.","호흡은 깊은날숨(심호기) 후 멈춘 상태에서 촬영한다.","흉부 왼쪽 측와위(lateral decubitus, 옆누움) 촬영이다.","소량의 수액(fluid)은 검사쪽을 위로 했을 때 잘 관찰된다."],a:2,ex:""},
+  {id:79,ch:5,imgs:["62"],q:"(사진 62) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["나비굴이 관찰되지 않는다.","광대활 축방향(axial) 촬영상이다.","중심선 입사점은 턱뼈각사이 중앙에 입사한다.","중심선은 눈확귀구멍선(OML)에 대해 수직 입사한다.","광대활(zygomatic arch, 관골궁)이 위턱뼈(maxilla)와 겹쳐져야 한다."],a:3,ex:""},
+  {id:80,ch:5,imgs:["62"],q:"(사진 62) 영상의 (나)에서 관찰되지 않는 해부학적 구조물은?",c:["벌집굴(ethmoid sinus)","광대활(zygomatic arch)","시상봉합(sagittal suture)","가시구멍(foramen spinosum)","타원구멍(foramen ovale, 타원공)"],a:3,ex:""},
+  {id:81,ch:5,imgs:["62"],q:"(사진 62) 영상에 관한 설명으로 옳은 것은?",c:["(가)는 목이 짧거나 비만 환자인 경우 누운 자세가 좋다.","(가)는 머리뼈바닥 촬영 Schuller법 보다 촬영 조건을 감소시킨다.","(나)는 부비동 두정비극방향 촬영이다.","(나)는 접선(tangential, 접면)방향 촬영상이다.","(나)는 큰구멍(대공)안에 안장등과 뒤침대돌기가 관찰된다."],a:2,ex:""},
+  {id:82,ch:5,imgs:["63"],q:"(사진 63) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["Pearson법 촬영상이다.","촬영거리는 180cm이다.","중심선은 다리쪽으로 10°가 되도록 부리돌기에 입사한다.","어깨관절 전방탈구에 의한 위팔뼈머리 뒤가쪽부의 뼈 결손을 관찰한다.","어깨의 위가쪽 모서리에서 안쪽, 아래쪽으로 5cm을 IR면 중앙에 위치한다."],a:4,ex:""},
+  {id:83,ch:5,imgs:["63"],q:"(사진 63) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["Pearson법 촬영상이다.","Lawrence법 촬영상이다.","Westpoint법 촬영상이다.","Scapula Y view 촬영상이다.","Stryker notch법 촬영상이다."],a:1,ex:""},
+  {id:84,ch:5,imgs:["63"],q:"(사진 63) 영상에 관한 설명으로 옳은 것은?",c:["(가)는 중심선은 봉우리빗장관절에 수평으로 입사한다.","(가)는 봉우리빗장관절(A-C joint)의 탈구, 분리증, 기능 등을 관찰한다.","(나)는 위팔뼈머리에 뼈 결손(Hill-sack)을 관찰한다.","(나)는 이완된 어깨를 진단할 목적으로 양쪽 동시 하중부하 자세에서 동시에 촬영한다.","(가), (나) 모두 축방향(axial) 촬영법이다."],a:4,ex:""},
+  {id:85,ch:5,imgs:["64"],q:"(사진 64) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["코끝이 IR면에 5cm 떨어지게 한다.","눈확귀구멍선(OML)이 IR면에 30° 되게 한다.","중심선은 코끝점(acanthion)를 향해 IR면에 수직 입사한다.","Open-mouth Waters법에서는 벌집굴(ethmoid sinus, 사골동)이 잘 나타난다.","부비동(paranasal sinus, 코곁굴) 비극두정(acanthioparietal)방향 촬영상이다."],a:3,ex:""},
+  {id:86,ch:5,imgs:["64"],q:"(사진 64) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["주된 관찰목적은 나비굴이다.","촬영 시 호흡은 온화하게 한다.","눈확음영과 바위능선이 겹쳐져 나타나야 한다.","눈확귀구멍선(OML)이 IR면 가로축에 평행되게 한다.","중심선은 코부리점을 향해 눈확귀구멍선(OML)이 수직일 때 발쪽으로 15° 입사한다."],a:5,ex:""},
+  {id:87,ch:5,imgs:["64"],q:"(사진 64) 영상의 (다)에 관한 설명으로 옳은 것은?",c:["코곁굴의 Air-fluid level을 보기 위해 누운 자세를 취한다.","부비동(PNS) 축방향(axial) 촬영법이다.","눈확귀구멍(OML)이 IR면의 횡축에 평행되게 한다.","동공사이선(interpupillary line, 눈확사이선, IPL)이 IR면에 횡축에 평행되게 한다.","중심선은 검사 반대쪽 가쪽 눈구석(lateral canthus) 뒤로 약 2cm 지점을 향해 수직 입사한다."],a:5,ex:""},
+  {id:88,ch:5,imgs:["65"],q:"(사진 65) 영상에 관한 설명으로 옳은 것은?",c:["Holmblad 촬영상이다.","Camp-Coventry 촬영상이다.","용기사이오목의 전후축방향 촬영상이다.","무릎뼈(patella, 슬개골)의 접선방향(tangential, 접면방향) 촬영상이다.","용기사이오목(intercondyloid fossa, 과간와)의 후전축방향 촬영상이다."],a:4,ex:""},
+  {id:89,ch:5,imgs:["65"],q:"(사진 65) 영상에 관한 설명으로 옳은 것은?",c:["무릎뼈의 축방향(axial) 촬영상이다.","Merchant 촬영법은 엎드린 자세로 한다.","Sky line view, Sun rise view라고도 한다.","무릎뼈의 가로골절 관찰에 유리한 촬영법이다.","무릎관절 굴곡각에 따라 굴곡이 많을수록 무릎뼈가 넙다리뼈 위쪽에 나타난다."],a:3,ex:""},
+  {id:90,ch:5,imgs:["65"],q:"(사진 65) 영상에 관한 설명으로 옳은 것은?",c:["Settegast법은 무릎뼈의 반측면상이 나타난다.","Merchant법의 환자 무릎은 60° 각도로 굽힌다.","Hughston법의 중심선은 다리쪽으로 45° 입사한다.","Camp-Coventry법의 중심선은 다리쪽으로 45° 입사한다.","Holblad법의 중심선은 넙다리뼈 용기사이오목을 향해 수직 입사한다."],a:1,ex:""},
+  {id:91,ch:5,imgs:["66"],q:"(사진 66) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["보통 남자의 두덩아래각은 90° 보다 작다.","두덩결합 윗 모서리에서 위로 2~3cm에 중심선을 수직 입사한다.","넙다리뼈목은 넙다리뼈몸통으로부터 뒤쪽으로 15~20° 돌출되어 있다.","넙다리뼈목은 넙다리뼈몸통의 장축에 대해 약 120~130° 아래로 돌출되어 있다.","넙다리뼈목의 자리바꿈(inversion, 안쪽들림)을 방지하기 위해 발을 안쪽으로 15~20° 돌린다."],a:1,ex:""},
+  {id:92,ch:5,imgs:["66"],q:"(사진 66) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["골반 축방향촬영상이다.","IR면에 중앙에 두덩결합 아래 2.5cm 지점을 놓는다.","넙다리뼈를 IR면에 수직인 면에서 60°가 되게 가쪽으로 벌린다.","변형된 Cleaves법은 두덩결합 위 2.5cm 지점을 향해 중심선을 수직 입사한다.","고유의 Cleaves법의 중심선은 두덩결합 위 2.5cm 지점을 향해 아래쪽으로 입사한다."],a:4,ex:""},
+  {id:93,ch:5,imgs:["66"],q:"(사진 66) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["Chassard-Lapine법 촬영상이다.","엉덩관절의 골절과 탈구 시 유리한 검사법이다.","바륨주장 조영촬영에서 잘 나타나지 않는 직장 및 구불창자를 관찰한다.","Frog-leg 자세라고도 하며 엉덩관절(hip joint, 고관절) 측방향 촬영상이다.","엉덩관절, 넙다리뼈머리, 넙다리뼈목, 큰돌기(greater trochanter, 대전자) 등의 축방향 촬영상이 나타난다."],a:5,ex:""},
+  {id:94,ch:5,imgs:["67"],q:"(사진 67) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["Anterior draw 촬영상이다.","안쪽옆면인대 손상을 측정할 수 있다.","무릎관절을 항상 90° 굽힌 상태에서 검사한다.","정강뼈의 이동거리가 작은 쪽이 인대이상이 있다.","뒤쪽 밀어내기 촬영으로 뒤십자인대(posterior cruciate ligament)의 안정성과 손상을 관찰한다."],a:5,ex:""},
+  {id:95,ch:5,imgs:["67"],q:"(사진 67) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["Posterior draw 촬영상이다.","가쪽옆면인대의 손상을 측정할 수 있다.","무릎관절을 10~15° 굽힌 상태에서도 검사할 수 있다.","앞쪽 끌어당기기 촬영으로 뒤십자인대의 손상을 관찰한다.","안정된 자세와 움직임에 의한 불선예도를 줄이기 위해 손을 이용한다."],a:3,ex:""},
+  {id:96,ch:5,imgs:["67"],q:"(사진 67) 영상에 관한 설명으로 옳은 것은?",c:["(가)는 무릎관절의 과신전을 막는 인대를 검사한다.","(가)는 무릎관절 뒤집힘(eversion, 바깥들림) 촬영상이다.","(나)의 검사인대는 정강뼈의 용기사이오목 뒤쪽에서 기시한다.","(나)는 하지(leg)의 앞쪽에서 뒤쪽으로 stress 주어 촬영할 수도 있다.","무릎관절의 전, 후 동요를 막는 인대를 검사하는 촬영상이다."],a:5,ex:""},
+  {id:97,ch:5,imgs:["68","68-1"],q:"(사진 68) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["확대촬영을 실시한다.","바깥귀길(EAM)을 관찰한다.","머리뼈가 두꺼워서 대초점을 사용한다.","눈확아래귀구멍선(IOML)이 IR면에 수직이다.","위치잡이가 용이하여 전후방향 촬영으로 실시한다."],a:1,ex:""},
+  {id:98,ch:5,imgs:["68","68-1"],q:"(사진 68) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["선예도를 향상시키기 위해 격자를 사용한다.","눈확아래귀구멍선(IOML)이 IR면에 수직이다.","동공사이선(IPL)이 IR면 가로축에 평행되게 한다.","연골부분의 관용도를 좋게 하기 위해 고관전압 촬영을 한다.","코부리점에서 아래로 약 1~2cm 점을 향해 IR면에 수직 입사한다."],a:5,ex:""},
+  {id:99,ch:5,imgs:["68","68-1"],q:"(사진 68) 영상에 관한 설명으로 옳은 것은?",c:["(가)는 반음영을 줄이기 위해 대초점을 사용한다.","(가)는 2배 확대촬영 시 초점-피사체거리(FOD)와 피사체-초점거리(OFD)가 같다.","(나)는 일반적으로 한쪽만 촬영한다.","(나)는 코뼈만 관찰하고 연부조직은 관찰하지 않는다.","(가), (나)의 공통점은 확대촬영이다."],a:5,ex:""},
+  {id:100,ch:5,imgs:["69"],q:"(사진 69) 영상에 관한 설명으로 옳은 것은?",c:["Beclere법은 용기사이오목을 전후접선방향으로 촬영한다.","Holmblad법은 용기사이오목을 후전축방향으로 촬영한다.","Hughston법은 무릎뼈를 엎드린 자세에서 접선방향 촬영한다.","Merchant법은 무릎뼈를 바로 누운 자세에서 접선방향 촬영한다.","Camp-Coventry법은 용기사이오목을 전후축방향으로 촬영한다."],a:2,ex:""},
+  {id:101,ch:5,imgs:["69"],q:"(사진 69) 영상에 관한 설명으로 옳은 것은?",c:["Beclere법은 Kneeling(무릎 꿇기) 자세를 취한다.","Holmblad법은 넙다리뼈와 중심선이 20° 이룬다.","Camp-Coventry법의 중심선은 넙다리뼈 장축에 수직 입사한다.","Beclere법은 넙다리뼈 장축에 정강뼈가 40~45° 되게 무릎을 구부린다.","Camp-Coventry법은 바로 누운 자세에서 다리(leg)가 IR면과 40~50° 이룬다."],a:2,ex:""},
+  {id:102,ch:5,imgs:["69"],q:"(사진 69) 영상에 관한 설명으로 옳은 것은?",c:["용기사이오목 촬영으로 Tunnel view라고도 한다.","Camp-Coventry법은 곡면카세트를 사용할 수 있다.","Beclere법의 중심선은 다리쪽으로 정강뼈 장축에 수직 입사한다.","Holmblad법의 중심선은 정강뼈의 용기사이오목을 향해 수직 입사한다.","Camp-Coventry법은 무릎각도가 40° 굽히면 중심선은 50° 다리쪽 입사한다."],a:1,ex:""},
+  {id:103,ch:5,imgs:["70"],q:"(사진 70) 영상의 설명으로 옳은 것은?",c:["정중시상면이 IR면에 수직이 되게 한다.","나비굴관찰이 가능하다.","좌, 우 앞침대돌기가 분리되어 나타나야한다.","눈확귀구멍선(OML)이 IR면에 수직을 이룬다.","중심선은 바깥귀길에서 아래로 2cm, 앞으로 2cm 되는 점을 향해 입사한다."],a:2,ex:""},
+  {id:104,ch:5,imgs:["71"],q:"(사진 71) 영상의 설명으로 옳은 것은?",c:["수술 후 반흔이 적다.","조직을 최대한 제거한다.","최대한 압박시간을 늘린다.","수술 전 금식이 불필요하다.","MLO 영상으로 위치를 선정하여 최소한 병변에 접근한다."],a:1,ex:""},
+  {id:105,ch:5,imgs:["72"],q:"(사진 72) 영상의 설명으로 옳은 것은?",c:["Holmblad법 촬영상이다.","환자는 누운 자세로 촬영한다.","용기사이오목기가 관찰된다.","전후방향으로 촬영한다.","무릎뼈가 넙다리뼈와 분리되어 나타나야 한다."],a:3,ex:""},
+  {id:106,ch:5,imgs:["73"],q:"(사진 73) 영상의 설명으로 옳은 것은?",c:["모든 내측 조직이 포함되어야 한다.","유두의 출혈과 분비가 있을 때 검사한다.","유방 조직을 가장 많이 포함시킬 수 있는 촬영법이다.","조직제거를 위한 병소의 정확한 위치 측정 시 검사한다.","병소나 의심되는 부위만 집중적으로 압박하여 검사한다."],a:1,ex:""},
+  {id:107,ch:5,imgs:["74"],q:"(사진 74) 영상의 설명으로 옳은 것은?",c:["종골 접선방향 촬영상이다.","목말발꿈치발배관절을 포함하여야 한다.","발꿈치뼈 전후방향 촬영 시 환자는 바로 누운 자세이다.","발꿈치뼈 앞 부분의 영상농도가 뒷부분보다 높아야 한다.","중심선은 후전방향 촬영 시 다리 방향으로 40° 되게 한다."],a:2,ex:""},
+  {id:108,ch:5,imgs:["75"],q:"(사진 75) 영상의 설명으로 옳은 것은?",c:["검사쪽 팔을 들어서 검사한다.","IR 중심에 부리돌기가 위치한다.","호흡법을 이용 시 조사 시간을 짧게 한다.","호흡은 최대한 날숨(심호기)으로 촬영한다.","어깨 겹침 우려 시 중심선을 다리쪽으로 10°~15° 되게 입사한다."],a:4,ex:""},
+  {id:109,ch:5,imgs:["76"],q:"(사진 76) 영상의 설명으로 옳은 것은?",c:["고관절 축측방향 촬영상이다.","골절환자에게 유용한 검사이다.","Lauenstein법은 수직으로 입사한다.","중심선은 두덩결합을 향해 입사한다.","Hicky법은 머리쪽으로 10°~15°로 입사한다."],a:3,ex:""},
+  {id:110,ch:5,imgs:["77"],q:"(사진 77) 영상의 설명으로 옳은 것은?",c:["하악교합 촬영상이다.","턱관절 관찰이 어렵다.","치아 발육과정 또는 이상의 평가에 유용하다.","혀가 입천장에 닿지 않는 상태에서 촬영한다.","눈확귀구멍선(OML)이 지면과 수직을 이룬다."],a:3,ex:""},
+  {id:111,ch:5,imgs:["78"],q:"(사진 78) 영상의 설명으로 옳은 것은?",c:["표준 파노라마 촬영상이다.","전체적인 치아구조를 확인이 가능하다.","눈확귀구멍선(OML)이 지면과 평행을 이룬다.","표준치아의 비교에 의해 얼굴뼈의 발육상태를 평가한다.","중심선은 양쪽 ear rod의 중앙을 통과하여 IR에 평행하게 입사한다."],a:4,ex:""},
+  {id:112,ch:5,imgs:["79"],q:"(사진 79) 영상의 설명으로 옳은 것은?",c:["상하방향 촬영상이다.","안쪽과 표면의 유방조직이 겹친다.","유방이 밑으로 처지게 압박을 조절한다.","IR 각도는 큰가슴근과 수직되는 각도로 정한다.","유방 아래 주름이 펼쳐져서 사진에 포함되어야 한다."],a:5,ex:""},
+  {id:113,ch:5,imgs:["80"],q:"(사진 80) 영상에 관한 설명으로 옳은 것은?",c:["(가)는 복부(abdomen) 전후방향 선 자세 촬영상이다.","(가)는 복부 측와위 촬영상이다.","(나)는 주로 결석 등의 비뇨기과 질환을 관찰한다.","(나)에 중심선은 엉덩뼈능선(iliac crest) 높이에서 아래로 5~7.5cm 지점을 입사한다.","(다)는 K.U.B 촬영상이다."],a:3,ex:""},
+  {id:114,ch:5,imgs:["80"],q:"(사진 80) 영상에 관한 설명으로 옳지 않은 것은?",c:["(가)의 영상에서 허리근(psoas muscle, 요근)이 관찰된다.","(나)의 영상에서 전립샘이 관찰된다.","(나)의 영상에서 오름창자(ascending colon)의 가스상이 관찰된다.","(다)의 영상에서 위(stomach)의 가스상이 관찰된다.","(다)의 영상에서 내림창자(descending colon)의 가스상이 관찰된다."],a:2,ex:""},
+  {id:115,ch:5,imgs:["80"],q:"(사진 80) 영상에 관한 설명으로 옳지 않은 것은?",c:["(가)에서 복수(ascites)의 유무 관찰에는 옆구리선이 나타나야 한다.","(나)에서 옆구리선(flank line)의 두께로 복수량의 측정이 가능하다.","(나)의 중심선은 양 쪽 엉덩뼈능선(장골) 사이 중앙에 수직 입사한다.","(다)는 복부 누운 자세 촬영상이다.","(다)에서 콩팥(신장)이 주요한 관찰 대상이 아닌 경우 후전방향으로 촬영한다."],a:4,ex:""},
+  {id:116,ch:5,imgs:["81"],q:"(사진 81) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["수근교 접선방향촬영이다.","Clements-Nakayama법 촬영상이다.","손바닥의 장축에 대해 25~30° 입사한다.","입사점은 셋째 손허리뼈 저부에서 4cm 먼 쪽을 향해 입사한다.","손목의 뒷면과 손허리뼈바닥(중수골지)이 겹치지 않고 잘 나타나야 한다."],a:3,ex:""},
+  {id:117,ch:5,imgs:["81"],q:"(사진 81) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["Gaynor-Hart법 촬영상이다.","수근관 접선방향 촬영상이다.","손바닥의 장축에 대해 25~30° 입사한다.","손목의 뒷면과 손허리뼈바닥(중수골지)이 겹치지 않고 잘 나타나야 한다.","손바닥을 아래로 엎침하여 손목은 최대한 펴서 IR 중앙에 놓이게 한다."],a:4,ex:""},
+  {id:118,ch:5,imgs:["81"],q:"(사진 81) 영상에 관한 설명으로 옳은 것은?",c:["(가), (나) 모두 축(axial)방향 촬영이다.","(가)는 손 등을 IR면 중앙에 위치한다.","(나)는 손가락을 잡아당겨 손목관절을 배굴(dorsi flexion)한다.","(가)는 수근관을 관찰하며 정중신경(median nerve)의 주행로이다.","(나)는 갈고리뼈와 콩알뼈의 음영의 겹침 방지를 위해 노뼈쪽으로 약 10° 돌린다."],a:4,ex:""},
+  {id:119,ch:5,imgs:["82"],q:"(사진 82) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["근접촬영 시 갈비뼈와 허파혈관(폐문리)의 선예도가 증가한다.","갈비뼈 앞부분이 촬영목적일 경우 뒤쪽 가슴을 IR면에 붙인다.","가로막 위쪽 갈비뼈 촬영에서 중심선은 등뼈 8번에 수평 입사한다.","가로막 아래쪽 갈비뼈 촬영에서 중심선은 등뼈 10번에 수평 입사한다.","가로막 부근의 갈비뼈는 가로막 위아래의 농도차를 적게 하기 위해 들숨으로 한다."],a:4,ex:""},
+  {id:120,ch:5,imgs:["82"],q:"(사진 82) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["폐혈관의 음영을 흐리게 하기 위해 온화한 호흡을 한다.","LPO 자세는 환자의 오른쪽 등을 격자장치에 밀착시킨다.","LAO 자세는 오른쪽 가슴을 IR면에서 60° 떨어지게 한다.","오른쪽 겨드랑이 갈비뼈 관찰은 RPO, LAO 촬영에서 잘 관찰된다.","늑골 후전 사방향 촬영은 밀착된 쪽 겨드랑이 갈비뼈가 잘 관찰된다."],a:4,ex:""},
+  {id:121,ch:5,imgs:["82"],q:"(사진 82) 영상에 관한 설명으로 옳은 것은?",c:["(가)는 넓은 관용도를 위하여 저관전압 촬영을 한다.","(가)는 갈비뼈손상과 동반 될 수 있는 호흡기이상 관찰을 위해 일반적으로 후전방향 촬영한다.","(나)는 전후방향촬영 시 LPO 자세이다.","(나)는 전후사방향 촬영 시 왼쪽 겨드랑이 갈비뼈를 잘 관찰할 수 있다.","(가), (나) 모두 갈비뼈 사방향 촬영상이다."],a:2,ex:""},
+  {id:122,ch:5,imgs:["83"],q:"(사진 83) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["고관절 측방향 촬영이다.","격자 사용시 Cut off를 이용한다.","검사반대쪽 다리와 발을 안쪽으로 15~20° 돌린다.","검사쪽 넙다리뼈는 겹침을 방지하기 위해 들어준다.","중심선은 넙다리뼈목을 향해 IR면에 수직으로 입사한다."],a:5,ex:""},
+  {id:123,ch:5,imgs:["83"],q:"(사진 83) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["골반 전후사방향 촬영 시 LPO 영상이다.","골반 전후사방향 촬영 시 IR면에 밀착된 쪽 영치엉덩관절(천장관절)이 잘 관찰된다.","골반 후전사방향 촬영 시 IR면에 밀착된 쪽 엉덩뼈 날개가 넓게 나타난다.","골반 후전사방향 촬영 시 IR면에 먼쪽 폐쇄구멍(폐쇄공)이 잘 관찰된다.","골반 후전사방향 촬영 시 LAO 영상이다."],a:1,ex:""},
+  {id:124,ch:5,imgs:["83"],q:"(사진 83) 영상에 관한 설명으로 옳은 것은?",c:["(가)는 Lauenstein법으로 수직 입사한다.","(가)는 Hicky법으로 머리쪽으로 20~25° 입사한다.","(나)는 IR면 중앙에 위앞엉덩뼈가시(ASIS)가 위치한다.","(나)는 골반 전후사방향 촬영 시 검사쪽 엉덩뼈오목의 측면상이 나타난다.","(가), (나) 모두 작은 결절이 관찰된다."],a:5,ex:""},
+  {id:125,ch:5,imgs:["84"],q:"(사진 84) 영상의 설명으로 옳은 것은?",c:["지용성 조영제를 사용한다.","분비물 나오는 당일에 시행한다.","22gauge 이하의 바늘을 이용한다.","수술 후 반흔이 적어 이후 판독에 도움이 된다.","0.1mm 이하 소초점을 사용하고 확대율은 1.5배로 한다."],a:2,ex:""},
+  {id:126,ch:5,imgs:["85"],q:"(사진 85) 영상의 설명으로 옳은 것은?",c:["상하 축방향촬영은 이중각도로 촬영한다.","하상 축방향촬영 시 중심선은 팔꿈치쪽으로 입사한다.","위팔뼈머리와 접시오목 사이는 겹쳐서 나타나야 한다.","봉우리 끝이 위팔뼈머리를 통해 투영되어야 한다.","Stryker notch법 촬영상이다."],a:4,ex:""},
+  {id:127,ch:5,imgs:["86"],q:"(사진 86) 영상의 설명으로 옳은 것은?",c:["Holmblad법은 곡면카세트를 사용한다.","Becler법은 중심선을 머리쪽으로 입사한다.","Camp-Coventry법은 넙다리뼈와 IR면과 70°를 이룬다.","Holmblad법은 Supine이나 Sitting 상태에서 검사한다.","Camp-Coventry법은 넙다리뼈장축에 정강뼈가 40~45° 되게 무릎을 구부린다."],a:2,ex:""},
+  {id:128,ch:5,imgs:["87"],q:"(사진 87) 영상의 설명으로 옳은 것은?",c:["Hughstont법은 무릎을 90°로 굽힌다.","Merchant법은 무릎을 60°로 굽힌다.","Hughston법은 Supine 상태로 눕는다.","Merchant법은 중심선이 머리쪽으로 입사한다.","Settegast법은 중심선이 머리쪽으로 입사한다."],a:5,ex:""},
+  {id:129,ch:5,imgs:["88"],q:"(사진 88) 영상의 설명으로 옳은 것은?",c:["Varus 촬영상이다.","검사쪽 다리와 발을 잡고 안쪽 번짐한 후 촬영한다.","발꿈치종아리인대 손상이 의심되는 경우 촬영상이다.","정상 영역에 개인차가 있기 때문에 양쪽 검사를 하여야 한다.","Telometer 기구를 이용하면 움직임에 의한 불선예도가 증가한다."],a:3,ex:""},
+  {id:130,ch:5,imgs:["89"],q:"(사진 89) 영상의 설명으로 옳은 것은?",c:["K.U.B 촬영상이다.","호흡은 들숨 후에 멈추고 촬영한다.","위(stomach)의 가스상이 관찰된다.","IR중심에 엉덩뼈능선 아래 5cm를 위치한다.","배 바로 누운 자세 수평방향 검사 촬영상이다."],a:3,ex:"② 날숨  ④ 위로 5cm  ⑤ 배 선자세 전후방향"},
+  {id:131,ch:5,imgs:["90"],q:"(사진 90) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["동공사이선(IPL)이 IR면에 가로축에 평행하게 한다.","눈확귀구멍선(OML)이 IR면 가로축에 평행하게 한다.","검사쪽과 검사 반대쪽 꼭지벌집의 머리 부분이 중복되어야 한다.","이중각도법은 중심선속을 앞쪽으로 15°, 머리쪽으로 15° 입사한다.","단일각도법은 머리를 앞쪽으로 15° 회전하고, 중심선을 발쪽으로 15°입사한다."],a:5,ex:""},
+  {id:132,ch:5,imgs:["90"],q:"(사진 90) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["Law법 촬영상이다.","눈확귀구멍선(OML)은 IR면에 수직되게 한다.","꼭지(유돌)돌기 축측사방향(axiolateral oblique) 촬영상이다.","중심선은 IR면 중앙점을 향해 다리쪽으로 12° 기울여 입사한다.","IR면 중앙에 바깥귀길(EAM)에서 뒤로 2.5cm 지점을 위치시킨다."],a:3,ex:""},
+  {id:133,ch:5,imgs:["90"],q:"(사진 90) 영상에 관한 설명으로 옳은 것은?",c:["(가)는 Stenvers법 촬영상이다.","(가)는 턱관절이 꼭지돌기 뒤에 나타난다.","(나)는 꼭지돌기의 정면상이 나타난다.","(나)는 바위모뿔과 바위능선의 정면상이 나타난다.","(가), (나) 모두 꼭지돌기 활영상이다."],a:5,ex:""},
+  {id:134,ch:5,imgs:["91"],q:"(사진 91) 영상에 관한 설명으로 옳은 것은?",c:["축방향(axial) 촬영","병변 있는 부위만 검사","서지 못하는 경우 앉아서 검사 시행","횡족궁(가로발바닥활)의 구조적 상태 관찰","검사의 목적 부위는 충격하중을 흡수하는 역할"],a:5,ex:"① 측방향  ② 양 측 검사  ③ 반드시 체중을 실어 서서 검사  ④ 종족궁(세로발바닥활)"},
+  {id:135,ch:5,imgs:["92"],q:"(사진 92) 영상에서 관찰하고자 하는 해부학 명칭은?",c:["세모 인대(deltoid ligament)","목말종아리 인대(talofibular ligament)","긴발바닥 인대(long plantar ligament)","발꿈치입방 인대(calcaneocuboid ligament)","발꿈치종아리 인대(calcaneofibular ligament)"],a:2,ex:""},
+  {id:136,ch:5,imgs:["93"],q:"(사진 93) 영상에 관한 설명으로 옳은 것은?",c:["무릎뼈의 세로골절을 관찰할 수 있다.","양 옆 연부조직 가장자리가 포함되도록 한다.","넙다리뼈관절용기는 분리되어 나타나야 한다.","중심X선은 다리쪽(caudal)으로 5~7° 입사한다.","관절강(joint cavity)의 용적이 최대가 되려면 무릎을 최대한 펴서 검사한다."],a:2,ex:"① 가로골절  ③ 겹쳐서  ④ 머리쪽  ⑤ 20~30° 굴곡"},
+  {id:137,ch:5,imgs:["94"],q:"(사진 94) 영상에 관한 설명으로 옳은 것은?",c:["무릎뼈와 용기사이오목이 겹쳐 나타나야 된다.","Camp-coventry법은 앉은 자세에서 검사한다.","Holmblad법은 OFD가 증가하여 확대를 고려해야 한다.","용기사이오목기를 관찰할 수 있다.","Holmblad법 무릎을 45° 굽힌다."],a:4,ex:"① 겹치지 않아야  ② 선 자세도 가능  ③ Beclere법  ⑤ Camp-coventry법"},
+
+  // ── 139~203번 (사진 96~138) ──
+  {id:139,ch:6,imgs:["96"],q:"(사진 96) 영상의 설명으로 옳은 것은?",c:["척추후만 자세이다.","허파꼭대기를 관찰한다.","중심선을 다리쪽으로 입사한다.","날숨 후에 호흡을 멈추고 검사한다.","허파꼭대기와 빗장뼈는 겹쳐져야 한다."],a:2,ex:"① 척추전만자세  ③ 중심선은 수직이나 머리쪽으로 입사  ④ 들숨  ⑤ 허파꼭대기와 빗장뼈는 겹쳐져야 한다"},
+  {id:140,ch:6,imgs:["97"],q:"(사진 97) 영상에 관한 설명으로 옳은 것은?",c:["제1~2목뼈가 잘 관찰되어야 한다.","IR면 중앙에 제2목뼈를 위치시킨다.","중심선은 다리쪽으로 15~20° 입사한다.","척추사이구멍(intervertebral foramen, 추간공)이 잘 나타난다.","턱교합평면과 꼭지돌기를 연결하는 선이 IR면에 수직이 되도록 한다."],a:5,ex:"① 제1~7목뼈  ② IR면 중앙에 제5목뼈  ③ 수직입사"},
+  {id:141,ch:6,imgs:["98"],q:"(사진 98) 영상의 설명으로 옳은 것은?",c:["골반 Inlet view 영상이다.","골반 전후사방향 촬영상이다.","중심선은 다리쪽으로 약 30° 입사한다.","폐쇄구멍(폐쇄공)이 잘 관찰된다.","다리와 발을 바깥쪽으로 15~20° 돌린다."],a:4,ex:"① Outlet view  ② 전후방향  ③ 머리쪽으로 30°  ⑤ 안쪽으로 15~20°"},
+  {id:142,ch:6,imgs:["99"],q:"(사진 99) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["턱뼈가지와 턱뼈몸통 좌우가 겹치게 나타나야 한다.","아래턱뼈(하악골) 후전 또는 후전축방향 촬영상이다.","턱뼈몸통을 보기위해서는 중심선을 머리쪽으로 30° 입사한다.","IR면 중심에 바깥귀길(EAM) 앞으로 1.3cm, 아래로 2.5cm를 위치한다.","턱뼈가지와 턱관절(temporomandibular joint, 악관절)을 보기 위해서는 IR면 중앙에 수직 입사한다."],a:2,ex:""},
+  {id:143,ch:6,imgs:["99"],q:"(사진 99) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["턱뼈가지와 목뼈가 겹쳐져야 한다.","턱뼈몸통과 IR면에 수직되게 한다.","아래턱뼈(하악골) 후전축방향 촬영상이다.","IR면 중앙에 제3대구치가 중앙이 되도록 한다.","중심선은 턱뼈몸통의 중앙점을 향해 머리쪽으로 20~25°로 입사한다."],a:5,ex:""},
+  {id:144,ch:6,imgs:["99"],q:"(사진 99) 영상에 관한 설명으로 옳은 것은?",c:["(가)는 축방향촬영, (나)는 접선방향 촬영상이다.","(가)는 턱뼈가지와 턱관절을 보기위해서는 IR면 중앙에 입술을 위치시킨다.","(가)는 중심선이 다리쪽으로 30°일 때 턱뼈가지, 턱관절 돌기가 잘 나타난다.","(나)는 코골귀구멍선(AML)이 IR면 횡축과 평행되게 한다.","(나)는 턱뼈가지를 잘 보기 위해서는 턱뼈몸통과 IR면 장축과 수직이 되게 한다."],a:4,ex:""},
+  {id:145,ch:6,imgs:["100"],q:"(사진 100) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["비만체형 환자는 45° 몸을 돌린다.","가로돌기구멍(횡돌기공)이 잘 관찰된다.","전후사방향 촬영 시 중심선은 발쪽으로 15~20°로 입사한다.","LPO 자세이다.","후전사방향 촬영 시 가까운 쪽 척추사이구멍(추간공)이 잘 나타난다."],a:5,ex:"① 60°  ③ 머리쪽으로  ④ RPO"},
+  {id:146,ch:6,imgs:["100"],q:"(사진 100) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["전후사방향 촬영 시 LPO 촬영상이다.","전후사방향 촬영 시 IR면 중심에 다섯째 목뼈가 위치한다.","전후사방향 촬영 시 중심선은 발쪽으로 15~20°로 입사한다.","아래턱을 앞으로 내밀면 척추의 정렬이 더 정확히 된다.","목뼈탈구에서는 돌기관절(apophyseal joint)의 나열의 흐트러짐을 관찰한다."],a:5,ex:"① RPO  ② 제5목뼈  ③ 머리쪽"},
+  {id:147,ch:6,imgs:["100"],q:"(사진 100) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["Pawlow법도 있다.","Twining법 촬영상이다.","중심선은 두 번째 등뼈를 향해 수직 입사한다.","양쪽 어깨가 분리되지 않는 경우에는 발쪽으로 5° 입사한다.","가슴(thorax, 흉곽)을 통한 측방향 촬영인 Lawrence법 촬영상이다."],a:5,ex:"① Pawlow법  ② Twining법  ③ 두번째 등뼈  ④ 발쪽으로"},
+  {id:148,ch:6,imgs:["101"],q:"(사진 101) 영상에 관한 설명으로 옳은 것은?",c:["LAO 자세","SID는 180cm이다.","격자를 사용하지 않는다.","폐야는 호흡 운동에 의해 흐리게 나타나야 한다.","복장뼈를 잘 나타나기 위해서는 폐야 음영위에 겹쳐서 나타나야 한다."],a:5,ex:"① RAO  ② 110cm  ③ 격자를 사용한다  ⑤ 심장 음영 위에 겹쳐서"},
+  {id:149,ch:6,imgs:["102"],q:"(사진 102) 영상에 관한 설명으로 옳은 것은?",c:["OML이 IR면과 평행해야 한다.","부비강(코곁굴)이 목적 부위이다.","좌우 꼭지돌기는 분리되어야 한다.","좌우 앞침대돌기가 겹쳐서 나타나야 한다.","중심선은 바깥귀길(EAM) 위쪽 5cm를 향해 수직 입사한다."],a:4,ex:"① IOML에 평행  ② 머리뼈가 목적부위  ③ 좌우 꼭지돌기는 완전히 겹쳐져야 한다  ⑤ EAM앞 2cm"},
+  {id:150,ch:6,imgs:["103"],q:"(사진 103) 영상의 설명으로 옳은 것은?",c:["촬영 중 호흡은 자연스럽게 한다.","중심선은 IOML과 수직을 이룬다.","턱뼈관절돌기는 바위부 뒤에 나타나야 한다.","하악-두정 검사 시 엎드린 자세로 촬영한다.","하악-두정 검사 시 IR에 턱뼈결합을 밀착한다."],a:2,ex:"① 촬영 중 호흡은 멈춘다  ③ 바위부 앞에 나타나야  ④ 바로 누운 자세  ⑤ IR에 머리마루 부분을 밀착한다"},
+  {id:151,ch:6,imgs:["104"],q:"(사진 104) 영상의 설명으로 옳은 것은?",c:["IOML이 IR에 수직되게 한다.","이마굴과 벌집굴을 잘 관찰 할 수 있다.","바위능선의 음영이 눈확 위모서리에 나타난다.","상수용체에 코글점(acanthion)을 위치시킨다.","공기와 액체의 경계 확인을 위해서 선자세에서 촬영한다."],a:2,ex:"① OML이 IR에 수직되게 한다  ③ 바위능선의 눈확 1/3 지점에 나타난다  ④ 상수용체에 코부리점을 위치시킨다  ⑤ 공기와 액체의 경계 확인을 위해서 선자세에서 촬영한다"},
+  {id:152,ch:6,imgs:["105"],q:"(사진 105) 영상에 관한 설명으로 옳은 것은?",c:["턱관절(T-M joint, 악관절) 전후축방향 촬영상이다.","동공사이선(IPL)이 IR면의 가로축에 평행되게 한다.","눈확귀구멍선(OML)이 IR면의 가로축에 평행되게 한다.","중심선은 검사쪽 턱관절을 향해 머리쪽으로 25~30° 입사한다.","IR면 중앙에 바깥귀길(EAM) 앞으로 1.3cm, 아래로 2.5cm를 위치시킨다."],a:5,ex:"① 측측방향  ② IPL이 IR에 수직  ③ OML이 IR에 수직  ④ 다리쪽으로 25~30°"},
+  {id:153,ch:6,imgs:["105"],q:"(사진 105) 영상에 관한 설명으로 옳은 것은?",c:["(가)는 입을 다문 상태(closed mouth)이다.","(나)는 관절돌기가 턱관절오목 안쪽으로 이동한다.","입을 벌린 상태를 먼저 검사한다.","검사쪽과 검사 반대쪽 턱관절이 중복되어 잘 나타나야 한다.","검사쪽 턱관절이 검사 반대쪽 턱관절보다 영상에서 위쪽에 위치한다."],a:5,ex:"① (가)는 입을 벌린 상태  ② 앞쪽으로 이동  ③ 다문 상태를 먼저  ④ 분리"},
+  {id:154,ch:6,imgs:["106"],q:"(사진 106) 영상에 관한 설명으로 옳은 것은?",c:["LPO 자세","고관전압 검사","Lower Rib 검사 시는 들숨을 한다.","Upper Rib 검사 시는 날숨을 한다.","후전사방향 촬영에서는 IR에서 가까운 쪽이 관심부위이다."],a:1,ex:"② 저관전압검사 시 갈비뼈에 겹쳐진 폐야(lung field)가 잘 보이지 않는다  ③ 흡기  ④ 호기  ⑤ IR에서 멀리 떨어진 쪽이 관심부위이다"},
+  {id:155,ch:6,imgs:["107"],q:"(사진 107) 영상에 관한 설명으로 옳은 것은?",c:["고관전압 검사","갈비뼈 음영을 흐리게 하기 위해 자연스러운 호흡을 한다.","근접촬영을 시행한다.","빗장뼈의 일부와 복장뼈 자루가 겹친다.","복장뼈는 복장뼈자루(manubrium)와 복장뼈몸통(body of sternum)까지 나와야 한다."],a:4,ex:"① 저관전압 검사(70~75 kVp)  ② 들숨 검사  ③ 180cm 촬영  ⑤ 칼돌기(xiphoid process)까지 나와야 한다"},
+  {id:156,ch:6,imgs:["108"],q:"(사진 108) 영상에 관한 설명으로 옳은 것은?",c:["격자를 사용하지 않는다.","갈비뼈 음영을 흐리게 하기 위해 자연스러운 호흡을 한다.","Short scale contrast이다.","폐혈관의 충혈을 방지하기 위해 누운자세로 촬영한다.","심장의 확대 방지를 위해 후전방향으로 촬영한다."],a:5,ex:"① 격자를 사용한다  ② 들숨이나 날숨으로 촬영한다  ③ Long scale contrast이다  ④ 폐혈관의 충혈을 방지하기 위해 선자세로 촬영한다"},
+  {id:157,ch:6,imgs:["109"],q:"(사진 109) 영상에 관한 설명으로 옳은 것은?",c:["SID는 110cm이다.","자연스런 호흡상태에서 검사한다.","심장이 영상의 중앙에 나타나야 한다.","뒤쪽 갈비뼈의 겹침으로 바른 측면 자세를 알 수 있다.","환자의 질환이 오른쪽에 있으면 왼쪽 측면 자세로 검사한다."],a:4,ex:"① 180cm  ② 심흡기(깊은 날숨)로 검사한다  ③ 허파문부가 중앙에 온다  ⑤ 질환이 있는 쪽의 측면자세로 검사한다"},
+  {id:158,ch:6,imgs:["110"],q:"(사진 110) 영상의 설명으로 옳은 것은?",c:["무릎뼈는 용기사이오목에 겹쳐야 한다.","바로 누운 자세에서는 중심선을 수직입사한다.","엎드린 자세에서는 무릎을 40~50° 구부린다.","엎드린 자세에서는 곡면카세트를 사용할 수 있다.","무릎을 구부린(kneeling) 자세에서는 중심선을 다리쪽으로 입사한다."],a:3,ex:"① 무릎뼈는 용기사이오목에서 분리되어야 한다  ② 바로 누운 자세에서는 중심선을 머리쪽으로 입사한다  ④ 바로 누운 자세에서는 곡면카세트를 사용할 수 있다  ⑤ 무릎을 구부린(kneeling) 자세에서는 중심선을 수직 입사한다"},
+  {id:159,ch:6,imgs:["111"],q:"(사진 111) 영상의 설명으로 옳은 것은?",c:["엎드린 자세에서 촬영한다.","넙다리뼈를 수직인 면에서 60°가 되게 내전한다.","두덩결합 아래 2.5cm 지점을 향해 중심선을 수직입사한다.","양쪽 작은돌기는 넙다리뼈 안쪽 아래 같은 거리에 나타나야 한다.","넙다리뼈목의 안쪽번짐(내반)을 방지하기 위해 발을 안쪽으로 15~20° 돌린다."],a:4,ex:"① 바로 누운 자세에서 촬영한다  ② 넙다리뼈를 수직인 면에서 40°가 되게 외전한다  ③ 두덩결합 위 2.5cm 지점을 향해 중심선을 수직입사한다  ⑤ Pelvis AP에서 발을 안쪽으로 15~20° 돌린다"},
+  {id:160,ch:6,imgs:["112"],q:"(사진 112) 영상의 설명으로 옳은 것은?",c:["어깨뼈의 사방향 촬영상이 나타난다.","어깨뼈몸통이 갈비뼈와 겹쳐 나타나야 한다.","Y자 위가지에 봉우리와 부리돌기가 나타난다.","선예도를 높이기 위해 전후사방향 촬영은 한다.","후방탈구에서는 몸쪽 위팔뼈가 어깨뼈몸통 안에 보인다."],a:3,ex:"① 어깨뼈의 측방향 촬영상이 나타난다  ② 어깨뼈몸통이 갈비뼈와 겹침 없이 나타나야 한다  ④ 선예도를 높이기 위해 후전사방향 촬영은 한다  ⑤ 전방탈구에서는 몸쪽 위팔뼈가 어깨뼈몸통 안에 보인다"},
+  {id:161,ch:6,imgs:["113"],q:"(사진 113) 영상의 설명으로 옳은 것은?",c:["발가락을 발등쪽으로 구부린다.","중심선은 머리쪽으로 15° 입사한다.","엎드린자세에서는 종자뼈의 선예도가 떨어진다.","종자뼈의 확대방지를 위해 180cm에서 촬영한다.","발바닥면이 IR에 수직인 상태에서 75°가 이루게 한다."],a:1,ex:"② 중심선은 수직 입사한다  ③ 바로누운자세에서는 종자뼈의 선예도가 떨어진다  ④ 100cm에서 촬영한다  ⑤ 발바닥면이 IR에 수직인 상태에서 15°가 이루게 한다"},
+  {id:162,ch:6,imgs:["114"],q:"(사진 114) 영상의 설명으로 옳은 것은?",c:["RAO 자세이다.","전후 자세에서는 촬영측이 IR에 밀착되었다.","전후 자세에서는 촬영측을 45° 거상시킨다.","중심선을 위앞엉덩가시뼈 바깥쪽 2.5cm에 입사한다.","후전사방향 자세에서는 20~30° 거상시킨다."],a:1,ex:"엉치엉덩관절 촬영으로 전후사방향에서는 촬영측 거상, 후전사방향에서는 촬영측 밀착으로 20~30° 거상한다"},
+  {id:163,ch:6,imgs:["115"],q:"(사진 115) 영상의 설명으로 옳은 것은?",c:["골반 접선방향 촬영상이다.","남자, 여자의 골반 형태에 따라 입사각도가 다르다.","골반 Outlet view 영상이다.","중심선의 입사점은 위엉덩뼈가시이다.","IR면에 중앙에 두덩결합 아래 2.5cm 지점을 놓는다."],a:2,ex:"① 골반 전후축방향 촬영상이다  ③ 골반 Inlet view 영상이다  ④ 중심선의 입사점은 위엉덩뼈가시이다"},
+  {id:164,ch:6,imgs:["116"],q:"(사진 116) 영상의 설명으로 옳은 것은?",c:["주된 관찰 목적이 나비굴이다.","IOML이 IR면에 37° 되게 한다.","IR 중심에 코부리점을 위치한다.","이름돌기와 위턱굴이 겹쳐 나타나야 한다.","바위능선이 위턱굴 아래쪽에서 관찰되어야 한다."],a:5,ex:"① 주된 관찰 목적이 위턱굴이다  ② OML이 IR면에 37° 되게 한다  ③ IR 중심에 코글점을 위치한다  ④ 이름돌기와 위턱굴이 분리되어 나타나야 한다"},
+  {id:165,ch:6,imgs:["117"],q:"(사진 117) 영상의 설명으로 옳은 것은?",c:["위팔뼈가 등뼈와 겹쳐야 한다.","가슴우리(흉곽)을 통해 위팔뼈의 정면상을 관찰한다.","반대쪽 어깨를 들어 올려 검사쪽 어깨와 겹치게 한다.","high mA-short exposure time의 조건으로 촬영하는 것이 좋다.","축방향 촬영을 위해 팔을 벌릴 수 없을 때에 사용하는 방법이다."],a:5,ex:"① 겹치지 않아야  ② 측면상  ③ 검사쪽 어깨와 겹치지 않게  ④ low mA-long exposure time"},
+  {id:166,ch:6,imgs:["118"],q:"(사진 118) 영상의 설명으로 옳은 것은?",c:["척추후만자세 촬영상이다.","환자는 후·전방향으로 촬영자세를 취한다.","호흡은 깊은 날숨 상태에서 멈추고 촬영한다.","양쪽 빗장뼈는 허파꼭대기 아래 나타나야 한다.","촬영자세가 불가능할 경우 중심선을 머리쪽으로 입사하여 촬영한다."],a:5,ex:"① 척추전만자세 촬영상이다  ② 전·후방향으로 촬영자세를 취한다  ③ 깊은 들숨 상태에서 멈추고  ④ 허파꼭대기 위에 나타나야 한다"},
+  {id:167,ch:7,imgs:["119"],q:"(사진 119) 영상의 설명으로 옳은 것은?",c:["촬영거리는 180cm으로 한다.","턱뼈가지와 첫째~둘째 목뼈는 겹쳐 나타난다.","LAO 자세 시 IR에 오른쪽 척추사이구멍이 가깝다.","후·전 사방향 촬영 시 중심선은 발쪽으로 입사한다.","전·후 사방향 촬영 시 IR에 가까운쪽 척추사이구멍을 볼 수 있다."],a:4,ex:"① 촬영거리는 100cm으로 한다  ② 겹쳐지지 않도록 촬영한다  ③ LAO 자세 시 IR에 왼쪽 척추사이구멍이 가깝다  ⑤ 전·후 사방향 촬영 시 IR에 먼쪽 척추사이구멍을 볼 수 있다"},
+  {id:168,ch:7,imgs:["120"],q:"(사진 120) 영상의 설명으로 옳은 것은?",c:["촬영거리는 180cm으로 한다.","IR에 근접한 팔을 들어 올린다.","IR의 중앙선에 MSP를 일치시킨다.","호흡은 깊은 들숨 상태에서 멈추고 촬영한다.","양쪽 어깨가 분리되지 않는 경우에는 머리쪽으로 5° 입사한다."],a:2,ex:"① 촬영거리는 100cm으로 한다  ③ IR의 중앙선에 관상면을 일치시킨다  ④ 호흡은 깊은 날숨 상태에서 멈추고 촬영한다  ⑤ 양쪽 어깨가 분리되지 않는 경우에는 다리쪽으로 5° 입사한다"},
+  {id:169,ch:7,imgs:["121"],q:"(사진 121) 영상의 설명으로 옳은 것은?",c:["부리돌기 밑에 위팔뼈머리가 위치하면 후방탈구를 의심할 수 있다.","어깨뼈몸통과 봉우리 및 큰결절은 Y자를 이루게 된다.","관상중앙면이 IR과 45° 되게 한다.","가시위근 출구 촬영은 머리쪽으로 10~15°로 입사한다.","가시위근이 지나가는 주행로를 잘 볼 수 있다."],a:5,ex:"① 부리돌기 밑에 위팔뼈머리가 위치하면 전방탈구를 의심할 수 있다  ② 어깨뼈몸체와 봉우리 및 부리돌기은 Y자를 이루게 된다  ③ 관상중앙면이 IR과 60° 되게 한다  ④ 가시위근 출구 촬영은 다리쪽으로 10~15°로 입사한다"},
+  {id:170,ch:7,imgs:["122"],q:"(사진 122) 영상의 설명으로 옳은 것은?",c:["촬영거리는 180cm이다.","갈비뼈 앞부분이 촬영목적일 경우 뒤쪽 가슴을 IR면에 붙인다.","가로막 아래쪽 갈비뼈는 열 번째 등뼈에 중심선을 입사한다.","폐혈관의 음영을 흐리게 하려면 온화한 호흡을 한다.","LPO 촬영상이다."],a:3,ex:"① 100cm  ② 앞쪽 가슴을 IR면에 붙인다  ④ 자연스러운 호흡  ⑤ RPO"},
+  {id:171,ch:7,imgs:["123"],q:"(사진 123) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["주관절 완전 굴곡위 촬영상이다.","노뼈 거친 면은 전방을 향해야 한다.","아래팔과 위팔뼈가 분리되는 영상으로 두 번의 촬영을 한다.","위팔뼈(상완골)의 도르레면(활차면)이 동심원상이 되어야 한다.","팔꿈치 주위의 연부조직이 의심될 때에는 팔꿈치관절을 30~35° 정도 구부린다."],a:1,ex:""},
+  {id:172,ch:7,imgs:["123"],q:"(사진 123) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["팔꿈치머리는 반측면상으로 보여야 한다.","노뼈머리는 갈고리돌기와 분리되어야 한다.","팔꿈치 주위의 연부조직이 의심될 때에는 팔꿈치관절을 130~135° 정도 구부린다.","중심선은 몸쪽 아래팔(근위상완)은 팔꿈치머리 먼쪽으로 5cm지점으로 입사한다.","중심선은 먼쪽 위팔(원위상완)은 팔꿈치머리(주두)에서 몸쪽으로 5cm에 입사한다."],a:1,ex:""},
+  {id:173,ch:7,imgs:["123"],q:"(사진 123) 영상에 관한 설명으로 옳은 것은?",c:["(가)는 몸쪽 아래팔의 노뼈와 자뼈는 위팔뼈 가까운 쪽에 겹친다.","(가)는 몸쪽 아래팔의 노뼈머리와 노뼈목의 윤곽은 위팔뼈를 통해 나타난다.","(나)는 팔꿈치머리의 정면상이 나타나야 한다.","(나)는 노뼈머리와 노뼈목이 몸쪽 자뼈와 겹쳐야 한다.","(나)는 IR면에 노뼈(척골)측을 놓아 올바른 측방향 자세가 되도록 한다."],a:2,ex:""},
+  {id:174,ch:7,imgs:["124"],q:"(사진 124) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["자연스러운 자세는 손바닥이 앞으로 향하게 한다.","안쪽 돌림 자세는 손바닥을 허벅지에 댄 자세이다.","안쪽 돌림 자세(내선위)는 작은 결절의 정면상이 나타난다.","자연스러운 자세(중립위)는 큰 결절이 위팔뼈머리에 겹쳐서 나타난다.","가쪽 돌림 자세(외선위)는 가시위근의 부착점인 큰 결절의 반측면상이 나타난다."],a:5,ex:""},
+  {id:175,ch:7,imgs:["124"],q:"(사진 124) 영상의 (다)에 관한 설명으로 옳은 것은?",c:["중심선은 부리돌기 5cm 아래로 입사한다.","중심선은 머리쪽으로 10°가 되도록 입사한다.","중심선은 봉우리(견봉) 2.5cm 아래로 입사한다.","중심선은 어깨관절을 향해 팔꿈치 쪽으로 5~15°로 입사한다.","중심선은 위팔뼈목(외과목)을 향해 IR면에 수평으로 입사한다."],a:1,ex:""},
+  {id:176,ch:7,imgs:["125"],q:"(사진 125) 영상의 설명으로 옳은 것은?",c:["Fuch법은 바로 누운 자세에서 턱을 들어 올린다.","큰구멍(대공) 안에 치아돌기가 잘 관찰된다.","뒤통수가 치아돌기를 가린 경우는 머리를 더 숙여 환자자세를 조정한다.","고리뼈의 가시돌기가 잘 관찰된다.","중심선은 미간치조선(GAL)과 평행하다."],a:3,ex:""},
+  {id:177,ch:7,imgs:["126"],q:"(사진 126) 영상의 설명으로 옳은 것은?",c:["폐첩 척추전만 촬영상이다.","원쪽 측와위 누운 수평방향 촬영이다.","원쪽에 air-fluid level이 관찰된다.","위(stomach)에 가스 음영이 관찰된다.","아래쪽 허파가 넓게 나타나야 한다."],a:4,ex:"② 오른쪽 측와위 누운 수평방향 촬영이다  ③ 오른쪽에 air-fluid level이 관찰된다"},
+  {id:178,ch:7,imgs:["127"],q:"(사진 127) 영상의 설명으로 옳은 것은?",c:["LPO 자세이다.","허리뼈 측방향 촬영상이다.","오른쪽 돌기사이관절이 잘 관찰된다.","IR면에 대해서 정중 이마면이 60° 되게 한다.","호흡은 깊은 들숨후 멈춘 상태에서 촬영한다."],a:3,ex:"① RPO 자세이다  ② 허리뼈 사방향 촬영상이다  ④ IR면에 대해서 정중 이마면이 45° 되게 한다  ⑤ 호흡은 깊은 날숨 후 멈춘 상태에서 촬영한다"},
+  {id:179,ch:7,imgs:["128"],q:"(사진 128) 영상의 설명으로 옳은 것은?",c:["K.U.B 촬영상이다.","중심선은 엉덩뼈능선 5~7.5cm 위에 입사한다.","복부 측와위 수평방향 촬영상이다.","복부전후방향 누운자세 촬영상이다.","콩팥이 주요한 관찰 대상인 경우 후전방향으로 촬영한다."],a:2,ex:"④ 복부전후방향 선자세 촬영상이다  ⑤ 콩팥이 주요한 관찰 대상인 경우 전후방향으로 촬영한다"},
+  {id:180,ch:7,imgs:["129"],q:"(사진 129) 영상의 설명으로 옳은 것은?",c:["Gaynor-Hart법 촬영상이다.","손목관절 사방향 촬영상이다.","손목을 최대한 노뼈 굽힘 자세가 될 때 까지 돌려준다.","바깥쪽 손목뼈에 인접한 관절공간이 열려 보인다.","손배뼈 골절이 관찰을 위해 중심선을 팔꿈관절을 향해 10° 입사한다."],a:3,ex:"① 노뼈 굴곡위 촬영상이다  ④ 안쪽 손목뼈에 인접한 관절공간이 열린 상태로 보이도록 손목관절을 굽힌다"},
+  {id:181,ch:7,imgs:["130"],q:"(사진 130) 영상의 설명으로 옳은 것은?",c:["주관절 외측사방향 촬영상이다.","노뼈거친면이 잘 관찰된다.","Jones법 촬영상이다.","손바닥을 뒤침한다.","갈고리돌기의 사방향상이 관찰된다."],a:5,ex:"① 주관절 내측사방향 촬영상이다  ④ 손바닥을 엎침한다"},
+  {id:182,ch:7,imgs:["131"],q:"(사진 131) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["Varus 촬영상이다.","발목관절의 안쪽 인대를 관찰한다.","방사선 피폭 경감 때문에 통증이 있는 쪽만 촬영한다.","발목관절을 자리바꿈(inversion, 안쪽들림)한 stress 촬영상이다.","발목과 발은 발등 굽힘(dorsiflexion)하여 IR면에 평행되게 한다."],a:2,ex:""},
+  {id:183,ch:7,imgs:["131"],q:"(사진 131) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["Posterior draw 촬영상이다.","발뒤꿈치를 뒤쪽으로 stress를 준다.","손상이 있는 쪽의 발목에 stress를 더 가한다.","인대 파열 정도에 따라 변형된 관절공간이 나타난다.","발목관절을 뒤집힘(eversion, 바깥들림)한 stress 촬영상이다."],a:4,ex:""},
+  {id:184,ch:7,imgs:["131"],q:"(사진 131) 영상의 (다)에 관한 설명으로 옳은 것은?",c:["Valgus 촬영상이다.","Anterior draw 촬영상이다.","손상이 없는 쪽의 발목에 stress를 더 가한다.","목말종아리인대(거비인대) 손상이 의심되는 경우 실시한다.","발목관절을 뒤집힘(eversion, 바깥들림)한 stress 촬영상이다."],a:4,ex:""},
+  {id:185,ch:7,imgs:["132"],q:"(사진 132) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["무릎골(슬개골)의 가로골절을 보기에 좋은 검사법이다.","안쪽, 가쪽 관절용기(condyle)가 겹쳐져 나타나야 한다.","무릎관절을 20~30° 굽히면 관절안을 넓게 나타낼 수 있다.","중심선은 무릎관절(슬관절) 중앙을 향해 머리쪽으로 5~7° 되게 입사한다.","누운 자세에서 정상이지만 선 자세에서는 관절공간이 비정상적으로 관찰 될 수 있다."],a:5,ex:""},
+  {id:186,ch:7,imgs:["132"],q:"(사진 132) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["수술 전 평가에만 적용하는 검사법이다.","굴거나, 펴진 넙다리뼈를 관찰 할 수 있다.","양쪽 하지의 길이 측정에 적용하는 검사법이다.","연부조직 관찰 시에는 다른 검사법을 시행해야 한다.","전후방향에만 실시하고 측방향 검사는 시행하지 않는다."],a:2,ex:""},
+  {id:187,ch:7,imgs:["133"],q:"(사진 133) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["Scotty dog sign을 관찰한다.","호흡은 깊은 들숨(심흡기) 후 멈춘 상태에서 촬영한다.","전후 사방향 촬영 시 바로 누운 자세에서 20° 회전시킨다.","RPO, LPO에서는 IR면에 가까운 쪽 돌기사이관절이 잘 관찰된다.","관찰되는 등뼈의 돌기사이관절 수는 등뼈 곡선상태에 따라 변화가 생긴다."],a:5,ex:""},
+  {id:188,ch:7,imgs:["133"],q:"(사진 133) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["호흡은 깊은 들숨(심흡기) 후 멈춘 상태에서 촬영한다.","조사면 폭을 넓게 조절하면 영상의 대조도를 향상시킬 수 있다.","심장 쪽을 주로 관찰할 때에는 중심선을 여섯째 등뼈를 향해 입사한다.","Heel effect를 고려하여 음극은 다리쪽, 양극은 머리 쪽에 놓이도록 한다.","쐐기형 보상필터 이용 시 머리쪽에 얇은 부분, 다리쪽에 두꺼운 부분을 놓는다."],a:4,ex:""},
+  {id:189,ch:7,imgs:["133"],q:"(사진 133) 영상의 (다)에 관한 설명으로 옳은 것은?",c:["척추의 장축과 정중시상면(MSP)이 수직되게 한다.","호흡은 깊은 들숨(심흡기) 후 멈춘 상태에서 촬영한다.","허파쪽을 주로 관찰할 때에는 중심선을 넷째 등뼈를 향해 입사한다.","환자 등뒤 촬영대에 납판을 놓으면 산란선이 증가하여 선명한 영상을 얻을 수 있다.","척주가 IR면에 평행이 되지 않을 때 기울기의 변화에 따라 중심각도 차이를 조정한다."],a:5,ex:""},
+  {id:190,ch:7,imgs:["134"],q:"(사진 134) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["발 축방향 촬영이다.","Lewis법은 앉은 자세로 촬영한다.","Holly법은 엎드린 자세로 촬영한다.","Holly법으로 촬영하면 Lewis법보다 종자뼈가 확대된다.","중심선은 셋째 발허리뼈머리를 향해 IR면에 수직 입사한다."],a:4,ex:""},
+  {id:191,ch:7,imgs:["134"],q:"(사진 134) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["발바닥면과 IR면이 75°가 이루게 한다.","발바닥과 첫째 발가락이 IR면에 수직되게 한다.","목말받침돌기(제거돌기)가 반측면상이 관찰된다.","종골 전후방향 촬영 시 환자는 바로 누운 자세이다.","중심선은 발바닥 중앙을 향해 다리 방향으로 40° 되게 한다."],a:3,ex:""},
+  {id:192,ch:7,imgs:["134"],q:"(사진 134) 영상에 관한 설명으로 옳은 것은?",c:["a는 뼈와 뼈의 마찰을 막는다.","a는 근육의 부착힘줄 속에 생기는 뼈이다.","b는 안쪽돌기이다.","b는 가쪽돌기이다.","b는 목말받침돌기(제거돌기)이다."],a:2,ex:""},
+  {id:193,ch:7,imgs:["135"],q:"(사진 135) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["누운 자세는 선 자세에 비해 가로막의 높이가 낮다.","후전방향 촬영 시 허파의 크기가 전후방향 촬영보다 작게 나타난다.","전후방향(A-P) 촬영 시 후전방향(P-A) 촬영보다 심장의 확대가 작다.","전후방향 촬영 시 후전방향 촬영보다 어깨뼈(scapula)와 허파의 중복이 작다.","전후방향 촬영 시 빗장뼈와 허파꼭대기(apex of lung) 중복이 후전방향 촬영보다 크다."],a:5,ex:""},
+  {id:194,ch:7,imgs:["135"],q:"(사진 135) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["선예도 향상을 위해서 소초점을 사용한다.","심음영의 왜곡과 확대를 피하기 위해 100cm 촬영한다.","심장을 중심으로 관찰할 때는 중심선을 넷째 등뼈에 수직 입사한다.","심음영과 허파음영의 농도차를 크게 하기 위해 고관전압촬영을 한다.","기흉(pneumothorax, 공기가슴증), 이물질(foreign body, 이물), 가로막고정 시 들숨(흡기)과 날숨(호기) 두 번 비교촬영 할 수 있다."],a:1,ex:""},
+  {id:195,ch:7,imgs:["135"],q:"(사진 135) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["중심선은 제8등뼈에 IR면을 수평 입사한다.","척주 뒤에 있는 좌, 우 갈비뼈는 분리되어야 한다.","복장뼈(흉골)는 허파구역안 정면에 위치해야 한다.","허파 위쪽 흉벽 연부조직의 영향이 적은 저관전압 촬영을 한다.","심장음영의 확대를 방지하기 위해서는 왼쪽을 IR면에 밀착 촬영한다."],a:5,ex:""},
+  {id:196,ch:7,imgs:["136"],q:"(사진 136) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["위앞엉덩뼈가시(ASIS)에 중심선을 입사한다.","후전방향(P-A) 촬영 시 중심선을 머리쪽으로 15° 입사한다.","영치뼈 위 축지점에서 앞쪽으로 5cm 지점을 IR면에 중앙에 오게 한다.","할레이션 포그(halation fog)에 대조도 저하 방지를 위해 등쪽에 납판을 둘 수 있다.","검사 전 배뇨(urination)와 배변(defecation)을 하면 장해음영이 줄어 영상의 질 향상에 도움이 된다."],a:5,ex:""},
+  {id:197,ch:7,imgs:["136"],q:"(사진 136) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["꼬리뼈와 두덩뼈가 겹쳐야 한다.","호흡은 깊은 들숨(심흡기) 후 멈춘 상태에서 촬영한다.","전전방향 촬영 시 중심선은 다리쪽으로 15° 입사한다.","중심선은 꼬리뼈 축지점을 향해 IR면에 대해 수직으로 입사한다.","중심선은 위앞엉덩뼈가시(ASIS) 중간지점과 두덩결합의 사이 중앙점에 입사한다."],a:5,ex:""},
+  {id:198,ch:7,imgs:["136"],q:"(사진 136) 영상의 (다)에 관한 설명으로 옳은 것은?",c:["검사하고자 하는 쪽을 20~25° 들어올린다.","중심선은 위앞엉덩뼈가시(ASIS) 4cm 아래에 수직 입사한다.","IR중심에 위앞엉덩뼈가시(ASIS)에서 2.5cm 바깥쪽을 위치시킨다.","중심선은 위앞엉덩뼈가시(ASIS)를 향해 머리쪽으로 20~25° 입사한다.","RAO, LAO 자세는 IR면에서 먼쪽 엉치엉덩관절과 인접한 구조를 잘 볼 수 있다."],a:1,ex:""},
+  {id:199,ch:7,imgs:["137"],q:"(사진 137) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["넙다리뼈 안쪽, 가쪽 관절용기가 분리되어야 한다.","무릎관절 10°를 굽히면 관절안을 넓게 나타낼 수 있다.","무릎골(슬개골)의 골절인 경우 무릎관절을 90° 이루게 한다.","중심선은 무릎관절 중앙을 향해 다리쪽으로 5~7° 되게 입사한다.","정강이뼈 먼 쪽을 올리면 넙다리뼈와 정강뼈 축을 수평으로 하기에 효과적이다."],a:5,ex:""},
+  {id:200,ch:7,imgs:["137"],q:"(사진 137) 영상에 관한 설명으로 옳은 것은?",c:["(가)는 항상 양쪽 비교 촬영을 시행해야 한다.","(가)는 정강뼈의 앞 모서리(전연), 뒷 모서리가 겹쳐서 양 옆 관절강이 잘 나타난다.","(나)는 무릎뼈와 넙다리뼈가 겹쳐져 나타나야 한다.","(나)는 넙다리뼈의 앞 모서리(전연)과 뒤 모서리(후연)이 분리되어야 한다.","(가), (나) 모두는 인대 손상 정도를 측정할 수 있다."],a:2,ex:""},
+  {id:201,ch:7,imgs:["138"],q:"(사진 138) 영상의 (가)에 관한 설명으로 옳은 것은?",c:["Valgus 촬영상이다.","무릎관절을 90° 굽힌 상태에서 검사한다.","안쪽 옆면인대의 손상을 잘 관찰할 수 있다.","무릎관절을 30° 굽힌 상태에서 검사한다.","슬관절 전후방향 자리바꿈(inversion, 안쪽들림) 촬영상이다."],a:5,ex:""},
+  {id:202,ch:7,imgs:["138"],q:"(사진 138) 영상의 (나)에 관한 설명으로 옳은 것은?",c:["Varus 촬영상이다.","가쪽 옆면인대의 손상을 잘 관찰할 수 있다.","무릎관절의 앞쪽 끌어당기기 stress 촬영상이다.","넙다리뼈를 고정하고 발목을 잡아 가쪽으로 stress를 준다.","무릎관절 전후방향 자리바꿈(inversion, 안쪽들림) 촬영상이다."],a:4,ex:""},
+  {id:203,ch:7,imgs:["138"],q:"(사진 138) 영상에 관한 설명으로 옳은 것은?",c:["(가)의 관찰 인대는 정강이뼈의 용기사이오목 앞쪽에서 기시한다.","(나)의 관찰 인대는 무릎관절이 과도하게 굽혀지는 것을 방지해 준다.","무릎관절 밀어내기(posterior draw) stress 촬영상이다.","안정된 자세와 움직임에 의한 불선예도를 줄이기 위해 손을 이용한다.","약 20° 무릎관절을 굽혀서 stress 검사 시 십자인대의 긴장을 줄여준다."],a:5,ex:""},
+  {id:138,ch:5,imgs:["95"],q:"(사진 95) 영상에 관한 설명으로 옳은 것은?",c:["검사측을 거상시킨다.","양 측 ASIS가 수평면에 위치해야 한다.","검사반대측의 엉덩뼈(장골)이 잘 나타난다.","검사측 영치엉덩관절(S-I joint)이 잘 나타난다.","검사측 두덩뼈(치골)과 궁둥뼈(좌골)이 잘 나타난다."],a:2,ex:"① 반대쪽 거상  ③ 검사측  ④ 검사반대측  ⑤ 검사반대측"},
+];
+
+// ════════════════════════════════════════════
+// 초음파 문제 데이터 (212문제)
+// ════════════════════════════════════════════
+const Q_US = [
+  {id:1,ch:1,imgs:["1"],q:"(사진 1) 다음 중 화살표 표시 위치의 발생 원인은?",c:["반사","흡수","굴절","회절","산란"],a:1,ex:""},
+  {id:2,ch:1,imgs:["2"],q:"(사진 2) 다음 중 화살표 표시 위치의 발생 원인은?",c:["흡수","굴절","반사","회절","산란"],a:3,ex:""},
+  {id:3,ch:1,imgs:["3"],q:"(사진 3) 위 영상은 간 초음파검사 영상이다. 영상의 스캔 방법은?",c:["늑간스캔","관상면스캔","세로면스캔","가로면스캔","늑골아래스캔"],a:1,ex:""},
+  {id:4,ch:1,imgs:["3"],q:"(사진 3) 영상에서 머리 쪽은?",c:["1","2","3","4","5"],a:1,ex:""},
+  {id:5,ch:1,imgs:["3"],q:"(사진 3) 영상에서 노란 화살표 구조물은?",c:["낭종","간동맥","간정맥","간문맥","간내담관"],a:3,ex:""},
+  {id:6,ch:1,imgs:["3"],q:"(사진 3) 영상에서 빨간 화살표 구조물은?",c:["낭종","간동맥","간정맥","간문맥","간내담관"],a:4,ex:""},
+  {id:7,ch:1,imgs:["4"],q:"(사진 4) 위 영상에서 빨간 화살표 표시의 허상은?",c:["거울허상","링다운허상","다중반사허상","혜성꼬리허상","다중경로반사허상"],a:2,ex:""},
+  {id:8,ch:1,imgs:["4"],q:"(사진 4) 위 영상에서 노란 화살표 표시의 해부학적 명칭은?",c:["인대","혈관벽","쓸개벽","가로막","정맥관삭"],a:4,ex:""},
+  {id:9,ch:1,imgs:["5"],q:"(사진 5) 영상에서 노란 화살표 표시의 해부학적 명칭은?",c:["심장","혈관","쓸개","대동맥","대정맥"],a:3,ex:""},
+  {id:10,ch:1,imgs:["6"],q:"(사진 6) 위 영상은 췌장 검사 영상이다. 영상에서 빨간 화살표 구조물의 해부학적 명칭은?",c:["폐","간","심장","위장","비장"],a:2,ex:""},
+  {id:11,ch:1,imgs:["6"],q:"(사진 6) 영상에서 노란 화살표 구조물의 해부학적 명칭은?",c:["문맥","대정맥","온담관","대동맥","비장 정맥"],a:5,ex:""},
+  {id:12,ch:1,imgs:["7"],q:"(사진 7) 위 영상은 간 초음파검사 영상이다. 노란 화살표의 해부학적 구조물은?",c:["문맥","대정맥","온담관","대동맥","비장 정맥"],a:1,ex:""},
+  {id:13,ch:1,imgs:["7"],q:"(사진 7) 영상의 빨간 화살표의 구조물이 향하는 코나드 분류에 의한 분절(segment)은?",c:["S1","S2","S3","S4","S5"],a:5,ex:""},
+  {id:14,ch:1,imgs:["7"],q:"(사진 7) 영상의 초록 화살표의 구조물이 향하는 코나드 분류에 의한 분절(segment)은?",c:["S1","S3","S4","S5","S7"],a:5,ex:""},
+  {id:15,ch:1,imgs:["7"],q:"(사진 7) 영상의 빨간 원 표시 위치에서 관찰되는 허상은?",c:["거울허상","다중반사","측엽허상","링다운허상","혜성꼬리허상"],a:1,ex:""},
+  {id:16,ch:1,imgs:["7"],q:"(사진 7) 영상의 빨간 원 표시 위치에서 관찰되는 허상의 발생원인은?",c:["산란","굴절","반사","흡수","회절"],a:3,ex:""},
+  {id:17,ch:2,imgs:["8"],q:"(사진 8) 위 영상은 간 초음파검사 영상이다. 영상의 검사 스캔 방법은?",c:["늑간스캔","관상면스캔","세로면스캔","가로면스캔","늑골아래스캔"],a:5,ex:""},
+  {id:18,ch:2,imgs:["8"],q:"(사진 8) 빨간 화살표 표시된 곳이 주위조직보다 밝게 보이는 이유는?",c:["감쇠가 많아서","흡수가 많아서","투과가 많아서","산란이 많아서","회절이 많아서"],a:4,ex:""},
+  {id:19,ch:2,imgs:["8"],q:"(사진 8) 빨간 화살표 표시된 곳의 코나드 분류에 의한 분절 위치는?",c:["S1","S2","S3","S4","S5"],a:4,ex:""},
+  {id:20,ch:2,imgs:["8"],q:"(사진 8) 노란 화살표 표시된 곳의 해부학적 명칭은?",c:["낭종","문맥","미상엽","대동맥","대정맥"],a:5,ex:""},
+  {id:21,ch:2,imgs:["9","9-1"],q:"(사진 9) 콩팥 초음파 영상이다. 화살표 구조물이 색도플러 사진과 같이 나타나는 것은?",c:["다중반사 허상","후방음영 감쇠","후방음영 증강","트윙클(twinkle) 허상","다중경로 반사 허상"],a:4,ex:""},
+  {id:22,ch:2,imgs:["10"],q:"(사진 10) 대동맥 검사 영상이다. 화살표 구조물은?",c:["지라","간동맥","위장동맥","비장동맥","상장간막동맥"],a:5,ex:""},
+  {id:23,ch:2,imgs:["11","11-1"],q:"(사진 11) 사진의 프로브에 대한 설명으로 올바른 것은?",c:["Radial 타입의 프로브이다.","자궁 및 부속기, 전립선을 가까이 검사하는 데 이용된다.","초음파 빔의 투과 깊이가 깊은 주파수 대역을 이용한다.","color doppler 검사는 가능하나 spectral doppler 검사는 할 수 없다.","방광이 음창역할을 하여, 장기를 잘 볼 수 있게 하는 검사에 이용된다."],a:2,ex:"전립선, 자궁 등을 볼 수 있는 프로브로 질 또는 직장 내로 삽입하여 검사 진행한다."},
+  {id:24,ch:2,imgs:["12"],q:"(사진 12) 영상은 어깨 초음파 영상이다. 화살표의 표시 위치는?",c:["두갈래 힘줄(biceps tendon)","뒤 테두리(posterior labrum)","가시아래 힘줄(subspinatus tendon)","어깨 밑 힘줄(subscapularis tendon)","가시위근 힘줄(supraspinatus tendon)"],a:1,ex:""},
+  {id:25,ch:2,imgs:["13"],q:"(사진 13) 영상에 관한 설명으로 옳은 것은?",c:["정맥 혈류이다.","혈류방향을 알 수 없다.","초당 36cm의 혈류 속도를 가진 혈관이다.","도플러 shift(변위, 이동) 각도를 90°로 하고 검사한다.","혈류속도를 정확히 확인하기 위해서 혈관 중심에 커서를 위치시켜야 한다."],a:5,ex:""},
+  {id:26,ch:2,imgs:["14"],q:"(사진 14) 영상에 관한 설명으로 옳은 것은?",c:["파워도플러 영상이다.","탄성초음파검사 영상이다.","혈류 흐름을 확인하는 영상이다.","전반사 되는 경우 나타난 현상이다.","병변이 있는 위치만 컬러가 맵핑된다."],a:2,ex:"탄성초음파 영상으로 조직의 탄성도에 따른 색의 차이가 나타난다."},
+  {id:27,ch:2,imgs:["15"],q:"(사진 15) 영상에 대한 설명으로 옳지 않은 것은?",c:["콩팥이 세로면으로 잘 관찰된다.","간이 콩팥의 음창역할을 하고 있다.","간의 오른 엽을 늑간 스캔 검사한 것이다.","초점영역을 검사 장기에 올바르게 위치시켰다.","모리슨 주머니(Morrison's pouch)가 관찰된다."],a:3,ex:""},
+  {id:28,ch:2,imgs:["16"],q:"(사진 16) 간 초음파 영상이다. 설명으로 옳지 않은 것은?",c:["병변 위치를 잘 구분하기 어려운 경우 시행한다.","혈관 같은 특정 부위를 표시 기준점으로 이용한다.","네비게이션 기능을 이용하는 fusion(융합) 검사이다.","다른장비와 위치가 같게 하기 위해 앉은 자세로 기준점을 만든다.","MRI 또는 CT 영상과 초음파 영상을 함께 이용해 동일 위치 병변을 찾는 검사이다."],a:4,ex:""},
+  {id:29,ch:2,imgs:["17"],q:"(사진 17) 영상에 대한 설명으로 옳은 것은?",c:["콩팥 검사 영상이다.","지라 가로면 검사 영상이다.","가로막이 일부 관찰된다.","파장이 짧은 주파수를 이용한다.","영상으로는 위, 아래 방향을 확인할 수 없다."],a:3,ex:""},
+  {id:30,ch:2,imgs:["18"],q:"(사진 18) 영상에 관한 설명으로 옳은 것은?",c:["섹터프로브를 이용하였다.","고에코 구조물이 관찰된다.","후방음영 증강이 관찰된다.","기계식 탐축자를 이용한 검사이다.","깊은 곳을 검사하기 어려운 주파수를 이용한 영상이다."],a:5,ex:""},
+  {id:31,ch:2,imgs:[],choices_img:true,q:"다음 중 확인하고자 하는 것이 다른 것은?",c:["①","②","③","④","⑤"],a:3,ex:"태아의 태령계측 방법 중 ①은 넙다리뼈 길이, ②는 복부둘레, ③은 머리둘레(HC)와 두정골 사이 직경(BPD), ⑤는 초기 임신기 정둔장 길이(CRL)를 계측한 것이다. ③은 양수지수(AFI)를 계측하는 것이다."},
+  {id:32,ch:2,imgs:["19"],q:"(사진 19) 지라 검사 영상이다. 설명으로 옳은 것은?",c:["이자가 잘 관찰된다.","가로면 검사 영상이다.","지라 결석이 관찰된다.","높은 주파수를 이용한다.","별 표시위치는 머리 쪽이다."],a:5,ex:""},
+  {id:33,ch:3,imgs:["20"],q:"(사진 20) 영상에 대한 설명으로 옳은 것은?",c:["간동맥이 관찰된다.","대동맥이 관찰된다.","비장정맥이 관찰된다.","복강동맥이 관찰된다.","비장동맥이 관찰된다."],a:1,ex:""},
+  {id:34,ch:3,imgs:["21","21-1"],q:"(사진 21) 두 영상에서 공통적으로 관찰되는 구조물은?",c:["간낭종","대동맥","간정맥","쓸개","대정맥"],a:4,ex:""},
+  {id:35,ch:3,imgs:["22"],q:"(사진 22) 영상에서 잘 관찰되고 있는 것은?",c:["다중반사","거울허상","후방음영증강","후방음영감쇠","혜성꼬리허상"],a:3,ex:""},
+  {id:36,ch:3,imgs:["23"],q:"(사진 23) 영상에 대한 설명으로 옳은 것은?",c:["세로면 검사 영상이다.","지라가 관찰되고 있다.","간이 음창 역할을 하고 있다.","상장간막동맥이 관찰되고 있다.","다중반사가 잘 관찰되고 있다."],a:3,ex:""},
+  {id:37,ch:3,imgs:["24"],q:"(사진 24) 영상에서 노란 화살표 구조물은?",c:["쓸개","문맥","간정맥","대정맥","온쓸개관"],a:1,ex:""},
+  {id:38,ch:3,imgs:["25"],q:"(사진 25) 영상에 관한 설명으로 옳은 것은?",c:["충담관이 관찰된다.","대동맥이 관찰된다.","측방음영이 관찰된다.","쓸개의 가로면 영상이다.","쓸개가 간의 음창역할을 하고 있다."],a:1,ex:""},
+  {id:39,ch:3,imgs:["26"],q:"(사진 26) 영상의 설명으로 옳은 것은?",c:["후방음영이 관찰된다.","콩팥의 가로면 영상이다.","간정맥은 관찰되지 않는다.","콩팥이 간의 음향창이 되고 있다.","모리슨 주머니(morison's pouch)가 관찰된다."],a:5,ex:""},
+  {id:40,ch:3,imgs:["27"],q:"(사진 27) 영상에서 관찰되는 구조물은?",c:["지라","미상엽","온쓸개관","정맥관삭","상장간(위창자간)막동맥"],a:3,ex:""},
+  {id:41,ch:3,imgs:["28"],q:"(사진 28) 영상과 관련된 설명으로 옳은 것은?",c:["쓸개가 일부 관찰되고 있다.","화살표 위치는 간내담관이다.","별 위치는 간구역 중 5구역이다.","화살표는 초음파 빔 전반사와 관련있다.","모리슨 주머니(morison's pouch)가 관찰된다."],a:4,ex:""},
+  {id:42,ch:3,imgs:["29"],q:"(사진 29) 영상과 관련된 설명으로 옳은 것은?",c:["혈류가 역류하고 있다.","혈관 깊이를 알 수 없다.","혈류량을 알 수 있는 검사이다.","탐축자로 다가오는 혈류가 많이 관찰된다.","높은 주파수에서는 이 검사를 할 수 없다."],a:4,ex:"두매질의 음파속도 차이에 의해 빔의 굴절이 발생하여 측음영이 관찰된다. 파워도플러 영상이다."},
+  {id:43,ch:3,imgs:["30"],q:"유방 초음파 영상이다. 화살표시부는?",c:["늑골","유방실질","피하지방","젓샘(유선)","가슴근(흉근)"],a:5,ex:""},
+  {id:44,ch:3,imgs:[],choices_img:true,q:"스캔 방향이 다른 것은?",c:["①","②","③","④","⑤"],a:5,ex:""},
+  {id:45,ch:3,imgs:["31_q45"],q:"화살표 구조물은?",c:["자궁","직장","콩팥","정낭","전립샘"],a:5,ex:""},
+  {id:46,ch:3,imgs:[],choices_img:true,q:"영상 검사를 위한 탐촉자 형태가 다른 것은?",c:["①","②","③","④","⑤"],a:2,ex:""},
+  {id:47,ch:3,imgs:[],choices_img:true,q:"영상 중 스캔 방향이 다른 것은?",c:["①","②","③","④","⑤"],a:5,ex:""},
+  {id:48,ch:3,imgs:["30"],q:"(사진 30) 이자 검사 영상이다. 화살표 구조물은?",c:["이자관","조임근","쓸개관","온쓸개관","겸상돌기"],a:4,ex:""},
+  {id:49,ch:3,imgs:["31","31-1","31-2","31-3","31-4"],q:"(사진 31) 영상에서 콩팥의 세로면 검사 영상은?",c:["(가)","(나)","(다)","(라)","(마)"],a:1,ex:""},
+  {id:50,ch:3,imgs:["31","31-1","31-2","31-3","31-4"],q:"(사진 31) 영상에서 이자의 검사 영상은?",c:["(가)","(나)","(다)","(라)","(마)"],a:3,ex:""},
+  {id:51,ch:3,imgs:["31","31-1","31-2","31-3","31-4"],q:"(사진 31) 영상에서 지라정맥이 잘 관찰되는 영상은?",c:["(가)","(나)","(다)","(라)","(마)"],a:3,ex:""},
+  {id:52,ch:3,imgs:["31","31-1","31-2","31-3","31-4"],q:"(사진 31) 영상에서 갑상샘 세로면 검사 영상은?",c:["(가)","(나)","(다)","(라)","(마)"],a:5,ex:""},
+  {id:53,ch:4,imgs:["32"],q:"(사진 32) 영상에 대한 설명으로 옳지 않은 것은?",c:["측방음영이 관찰된다.","낭성구조물이 관찰된다.","후방음영증강이 관찰된다.","파장이 짧은 주파수를 이용한다.","클러스터(cluster, 군집, 무리) 사인이 관찰된다."],a:2,ex:""},
+  {id:54,ch:4,imgs:["32"],q:"(사진 32) 영상에서 화살표시한 것과 같은 현상이 나타나는 이유는?",c:["굴절","흡수","반사","산란","회절"],a:1,ex:""},
+  {id:55,ch:4,imgs:["32"],q:"(사진 32) 영상의 설명으로 옳은 것은?",c:["낮은 주파수를 이용하여 검사한다.","파장이 긴 주파수를 이용하여 검사한다.","저에코 영역은 음창역할을 하는 구조물이다.","컨벡스(convex, 볼록) 프로브를 이용하여 검사한다.","화살표 한 것과 같은 현상은 스넬의 법칙에 의해 나타난다."],a:5,ex:""},
+  {id:56,ch:4,imgs:["33"],q:"(사진 33) 영상에 관한 설명으로 옳지 않은 것은?",c:["다중반사허상이 관찰된다.","낭성구조물이 관찰되고 있다.","화살표 한 것은 후방음영 증강이다.","화살표 한 것은 혈관 주위에서만 나타난다.","화살표 한 것은 주위보다 초음파 빔의 감쇠가 적어 나타난 것이다."],a:4,ex:"일반적으로 혈관은 혈액 내 구성물에 의해 감쇠가 발생하여 후방음영 증강이 관찰되지 않는다."},
+  {id:57,ch:4,imgs:["33"],q:"(사진 33) 영상에 관한 설명으로 옳은 것은?",c:["혜성꼬리 허상이 관찰된다.","화살표 한 것은 후방음영 증강이다.","화살표 한 것은 주파수에 영향을 받는다.","화살표 한 것은 혈관 주위에서만 나타난다.","파장이 짧은 주파수를 이용하는 경우에 관찰된다."],a:2,ex:""},
+  {id:58,ch:4,imgs:["34"],q:"(사진 34) 비장(지라) 스캔 영상이다. 화살표 구조물은?",c:["뼈","폐","이자","콩팥","가로막"],a:5,ex:""},
+  {id:59,ch:4,imgs:["35"],q:"(사진 35) 이자 영상으로 화살표 구조물 명칭은?",c:["충담관","지라동맥","복강동맥","쓸개동맥","위십이지장동맥"],a:5,ex:""},
+  {id:60,ch:4,imgs:["36"],q:"(사진 36) 간 초음파 영상이다. 화살표 혈관은 코나드 분류에 따른 몇 번 구역으로 주행하는가?",c:["1번 구역","2번 구역","3번 구역","4번 구역","5번 구역"],a:2,ex:""},
+  {id:61,ch:4,imgs:["37"],q:"(사진 37) 영상에서 노란 화살표 구조물은?",c:["쓸개","간정맥","주엽열","정맥관삭","오른 간문맥"],a:5,ex:""},
+  {id:62,ch:4,imgs:["38"],q:"(사진 38) 영상은 무엇을 확인하는 것인가?",c:["감도","동적영역","축방향 해상도","측방향 해상도","가로면 거리 정확성"],a:2,ex:""},
+  {id:63,ch:4,imgs:["39"],q:"(사진 39) 영상에 대한 설명으로 옳은 것은?",c:["화살표 부위는 낭성 구조물이다.","부채꼴형 프로브 이용한 영상이다.","파장이 긴 주파수 이용한 영상이다.","화살표 부위와 삼각형 부위의 초음파 주파수가 다르다.","화살표 부위는 삼각형 부위보다 초음파 빔의 투과가 많다."],a:5,ex:"화살표 부위 구조물 뒤로 후방음영증강이 관찰되고 있다."},
+  {id:64,ch:4,imgs:["40"],q:"(사진 40) 영상은 태아 검사 영상이다. 무엇을 확인하는 것인가?",c:["폐 둘레","머리 둘레","심장 둘레","복부 둘레","둔부 둘레"],a:2,ex:""},
+  {id:65,ch:4,imgs:["41"],q:"(사진 41) 영상은 간 검사 영상이다. 옳은 설명은?",c:["늑간 스캔 영상이다.","가로면 스캔 영상이다.","세로면 스캔 영상이다.","늑골아래 스캔 영상이다.","결엽(side lobe, 측업)허상이 관찰된다."],a:1,ex:""},
+  {id:66,ch:4,imgs:["42"],q:"(사진 42) 영상에 대한 설명으로 옳은 것은?",c:["정낭이 관찰된다.","가로면 검사 영상이다.","경복부 초음파 검사이다.","낮은 주파수를 이용하였다.","방광이 음창 역할을 하고 있다."],a:2,ex:""},
+  {id:67,ch:4,imgs:["43"],q:"(사진 43) 영상에 대한 설명으로 옳은 것은?",c:["후방 음영이 관찰된다.","혈관의 깊이는 알 수 없다.","화살표시는 고스트 허상이 관찰된 것이다.","혈류 흐름 방향과 상관없이 혈관이 표현되고 있다.","색 도플러 사진으로 엘리어싱(Aliasing)이 관찰된다."],a:4,ex:"두매질의 음파속도 차이에 의해 빔의 굴절이 발생하여 측음영이 관찰된다. 파워도플러 영상이다."},
+  {id:68,ch:4,imgs:["44"],q:"(사진 44) 영상에서 머리쪽 방향은?",c:["1","2","3","4","5"],a:2,ex:""},
+  {id:69,ch:4,imgs:["44"],q:"(사진 44) 사진은 콩팥 검사 영상이다. 설명으로 옳지 않은 것은?",c:["가로막이 일부 관찰된다.","더글라스 와가 관찰된다.","수신증은 관찰되지 않는다.","간이 음창 역할을 하고 있다.","낮은 주파수를 이용하여 검사 진행한다."],a:2,ex:""},
+  {id:70,ch:5,imgs:["45","45-1"],q:"(사진 45) 왼쪽 영상을 오른쪽 영상 같이 변경하는 것과 관련한 설명으로 옳은 것은?",c:["도플러 게인을 키운다.","혈관을 프로브로 압박한다.","펄스반복주파수(PRF)를 키운다.","주파수가 높은 프로브를 이용한다.","도플러 시프트 각도를 30° 이하로 맞춘다"],a:3,ex:"엘리어싱 허상 영상이다."},
+  {id:71,ch:5,imgs:["46"],q:"(사진 46) 영상은 쓸개 검사 영상이다. 설명으로 옳은 것은?",c:["결석이 관찰된다.","후방음영이 관찰된다.","쓸개의 가로면 영상이다.","혜성꼬리 허상이 관찰된다.","쓸개가 간의 음창역할을 하고 있다."],a:4,ex:""},
+  {id:72,ch:5,imgs:["46"],q:"(사진 46) 영상은 쓸개 검사 영상이다. 관찰되지 않는 현상은?",c:["다중반사","후방음영 증강","여운허상(ring-down artifact)","결엽인공물(side lobe, 부극) 허상","다중경로반사 허상(multi path reflection artifact)"],a:5,ex:""},
+  {id:73,ch:5,imgs:[],choices_img:true,q:"두 영상에서 모두 관찰되는 것은?",c:["①","②","③","④","⑤"],a:2,ex:""},
+  {id:74,ch:5,imgs:["47"],q:"(사진 47) 영상에 대한 설명으로 옳지 않은 것은?",c:["입체초음파 검사 영상이다.","내부 장기는 확인할 수 없다.","형태적 기형을 확인할 수 있다.","임신 중기 이후에만 검사가 가능하다.","3D 영상은 태아 움직임에 영향을 받는다."],a:4,ex:""},
+  {id:75,ch:5,imgs:["48"],q:"(사진 48) 화살표시 구조물은?",c:["원인대","문맥벽","주엽틈새","정맥관삭","겸상인대"],a:3,ex:""},
+  {id:76,ch:5,imgs:["49","49-1"],q:"(사진 49) 영상 (가)는 무엇을 확인하는 것인가?",c:["감도","동적영역","축방향 해상도","측방향 해상도","세로면 거리 정확성"],a:5,ex:""},
+  {id:77,ch:5,imgs:["49","49-1"],q:"(사진 49) 영상 (나)는 무엇을 확인하는 것인가?",c:["감도","동적영역","축방향 해상도","측방향 해상도","가로면 거리 정확성"],a:5,ex:""},
+  {id:78,ch:5,imgs:["50"],q:"(사진 50) 영상의 설명으로 옳은 것은?",c:["방광이 음창역할을 하고 있다.","태아의 태령 계측하는 것이다.","검사는 금식에 영향을 받는다.","태아의 사지(extrimity)가 잘 관찰된다.","인체 내 삽입용 탐촉자(probe, 더듬자)로 스캔한 것이다."],a:2,ex:"태아의 태령 계측 중 두정골 사이 직경(BPD)과 머리둘레를 확인하는 것이다."},
+  {id:79,ch:5,imgs:["50"],q:"(사진 50) 영상에서 화살표로 표시한 현상이 발생한 이유는?",c:["반사","굴절","흡수","간섭","회절"],a:2,ex:"태아의 머리뼈 양쪽에서 초음파 빔이 굴절하면서 생긴 측방음영이 관찰되고 있다."},
+  {id:80,ch:5,imgs:["51"],q:"(사진 51) 영상에서 화살표시는?",c:["거울허상","빔폭허상","다중반사허상","다중경로반사허상","혈관 엘리어싱 허상"],a:3,ex:""},
+  {id:81,ch:5,imgs:["51"],q:"(사진 51) 영상에 대한 설명으로 옳은 것은?",c:["파워 도플러 검사가 가능하다.","관강 구조물의 구조를 알 수 없다.","전자식 타입의 프로브 이용한 검사이다.","색 도플러와 파형 도플러 검사가 가능하다.","단일 엘리먼트(Element)가 360도 회전하면서 얻은 영상이다."],a:5,ex:""},
+  {id:82,ch:5,imgs:["52"],q:"(사진 52) 영상에서 화살표 위치의 허상은?",c:["측엽(side lobe)","다중반사(reverberation)","링다운(ring down)","혜성꼬리(comet tail)","grating lobe"],a:3,ex:""},
+  {id:83,ch:5,imgs:["53"],q:"(사진 53) 영상에서 화살표 허상이 발생하는 원리는?",c:["흡수","산란","감약","반사","굴절"],a:4,ex:""},
+  {id:84,ch:5,imgs:["54"],q:"(사진 54) 혈관 초음파 영상이다. 설명으로 옳은 것은?",c:["프로브에서 멀어지는 혈류이다.","커서가 위치한 혈관은 정맥이다.","혈관이 위치한 깊이를 알 수 없다.","파형 도플러에서 엘리어싱이 관찰된다.","최대 혈류 속도는 혈관 벽쪽에서 측정한다."],a:1,ex:""},
+  {id:85,ch:5,imgs:["55"],q:"(사진 55) 영상에 대한 설명으로 옳은 것은?",c:["빔폭 허상이 관찰된다.","측방 음영이 관찰된다.","세로면 검사 영상이다.","후방음영 증강이 관찰된다.","다중경로반사 허상이 관찰된다."],a:4,ex:""},
+  {id:86,ch:6,imgs:["56"],q:"(사진 56) 유방초음파 영상이다. 설명으로 틀린 것은?",c:["늑골이 관찰된다.","유방 실질이 관찰된다.","시계방향으로 스캔한다.","피하지방 조직은 관찰되지 않는다.","흉근(pectoral muscle)이 관찰된다."],a:4,ex:""},
+  {id:87,ch:6,imgs:["57"],q:"(사진 57) 영상은 심장의 왼심실 검사를 한 것이다. 설명으로 옳지 않은 것은?",c:["M mode 영상이다.","박출량을 알 수 있다.","심실의 이완기 내경을 알 수 있다.","심실의 수축기 내경을 알 수 있다.","사이막(septum, 중격) 두께를 알 수 없다."],a:5,ex:""},
+  {id:88,ch:6,imgs:["58"],q:"(사진 58) 위 영상에서 확인할 수 있는 것은?",c:["혈류 속도","혈관 깊이","혈관 길이","혈관 너비","미세한 혈관의 흐름"],a:2,ex:""},
+  {id:89,ch:6,imgs:["58"],q:"(사진 58) 위 영상에서 확인할 수 있는 것은?",c:["혈류 속도","혈관 너비","혈관 길이","혈류 방향","미세한 혈관의 흐름"],a:4,ex:""},
+  {id:90,ch:6,imgs:["59","59-1"],q:"(사진 59) 영상에 대한 설명으로 옳은 것은?",c:["초점에 따라 색이 변한다.","색 도플러 검사 영상이다.","탄성도 차이를 평가하는 것이다.","초음파 빔의 각도를 평가하는 것이다.","깊이에 따른 색 차이를 평가하는 것이다."],a:3,ex:"탄성초음파검사 영상으로 조직의 탄성도 차이를 색으로 다르게 표현하면서 종양을 평가할 수 있는 검사이다."},
+  {id:91,ch:6,imgs:["60"],q:"(사진 60) 영상에서 확인하는 것은?",c:["감도","불용영역","동적영역","깊이 정확성","축방향 분해능"],a:5,ex:""},
+  {id:92,ch:6,imgs:["61"],q:"(사진 61) 영상에서 확인하는 것은?",c:["감도","동적영역","깊이 정확성","측방향 분해능","축방향 분해능"],a:4,ex:""},
+  {id:93,ch:6,imgs:["62"],q:"(사진 62) 영상에 관한 설명으로 옳은 것은?",c:["간 내 담도가 잘 관찰되고 있다.","간을 세로면으로 검사한 것이다.","투과 깊이가 얕은 주파수로 검사한 사진이다.","정맥관 인대(ligamentum venosum)가 잘 관찰되고 있다.","동그라미 표시 위치 간정맥 벽이 밝게 나타난 것은 초음파 빔이 수직 입사되어 전반사가 생겨 나타난 것이다."],a:5,ex:""},
+  {id:94,ch:6,imgs:["63"],q:"(사진 63) 영상에서 관찰되지 않는 해부학적 구조물은?",c:["문맥(portal vein)","상장간막동맥(SMA)","가로막(diaphragm)","담낭(gallbladder, 쓸개)","대정맥(inferior vena cava)"],a:2,ex:"사진 63은 간의 늑골아래 스캔 검사 영상으로 문맥과 담낭, 대정맥, 가로막이 잘 관찰되고 있다."},
+  {id:95,ch:6,imgs:["63"],q:"(사진 63) 영상에 관한 설명으로 옳지 않은 것은?",c:["늑간 스캔 영상이다.","담낭이 잘 관찰된다.","간의 오른엽이 잘 관찰되고 있다.","일반적으로 금식을 하고 검사를 진행한다.","오른 문맥의 분기부(bifurcation)가 잘 관찰되고 있다."],a:1,ex:""},
+  {id:96,ch:6,imgs:["64"],q:"(사진 64) 화살표 구조물은?",c:["담낭","문맥","대정맥","대동맥","충담관"],a:5,ex:""},
+  {id:97,ch:6,imgs:[],choices_img:true,q:"파장이 가장 짧은 주파수를 이용한 영상은?",c:["①","②","③","④","⑤"],a:1,ex:""},
+  {id:98,ch:6,imgs:[],choices_img:true,q:"자궁의 세로면 초음파 영상은?",c:["①","②","③","④","⑤"],a:4,ex:""},
+  {id:99,ch:6,imgs:[],choices_img:true,q:"신장의 세로면 초음파 영상은?",c:["①","②","③","④","⑤"],a:5,ex:"①, ②, ③번 사진은 신장 가로면 영상, ④번은 자궁 세로면 영상이다."},
+  {id:100,ch:7,imgs:[],choices_img:true,q:"방광 가로면 스캔 영상은?",c:["①","②","③","④","⑤"],a:3,ex:""},
+  {id:101,ch:7,imgs:[],choices_img:true,q:"전립선 가로면 스캔 영상은?",c:["①","②","③","④","⑤"],a:3,ex:""},
+  {id:102,ch:7,imgs:[],choices_img:true,q:"비장 세로면 스캔 영상은?",c:["①","②","③","④","⑤"],a:4,ex:""},
+  {id:103,ch:7,imgs:[],choices_img:true,q:"쓸개 세로면 스캔 영상은?",c:["①","②","③","④","⑤"],a:2,ex:""},
+  {id:104,ch:7,imgs:["65"],choices_img:true,q:"(사진 65) 사진 65와 같이 스캔하여 얻은 간 영상은?",c:["①","②","③","④","⑤"],a:5,ex:""},
+  {id:105,ch:7,imgs:["66"],choices_img:true,q:"(사진 66) 사진 66과 같이 프로브 위치 시 검사 영상은?",c:["①","②","③","④","⑤"],a:5,ex:"두갈래 힘줄 단측 검사 영상"},
+  {id:106,ch:7,imgs:["67"],choices_img:true,q:"(사진 67) 영상의 노란 선 방향으로 초음파 스캔하여 얻을 수 있는 영상은?",c:["①","②","③","④","⑤"],a:4,ex:""},
+  {id:107,ch:7,imgs:["68"],q:"(사진 68) 간 검사 영상이다. 올바른 설명은?",c:["늑간스캔 영상이다.","빔폭 허상이 관찰된다.","거울 허상이 관찰된다.","간내 담도가 잘 관찰된다.","간 세로면 검사 영상이다."],a:5,ex:""},
+  {id:108,ch:7,imgs:["68"],q:"(사진 68) 위 영상의 화살표 위치 해부학적 명칭은?",c:["복막","가로막","충담관","대정맥","간문맥"],a:4,ex:""},
+  {id:109,ch:7,imgs:["68"],q:"(사진 68) 위 영상의 노란 원 위치 표시는 무엇을 의미하는가?",c:["초점","길이","너비","게인","트리거"],a:1,ex:""},
+  {id:110,ch:7,imgs:[],choices_img:true,q:"제시된 프로브로 얻을 수 있는 초음파 영상이 틀리게 연결된 것은?",c:["①","②","③","④","⑤"],a:5,ex:"⑤번 프로브는 입체 초음파 검사 시 사용한다."},
+  {id:111,ch:7,imgs:[],choices_img:true,q:"다음 중 질 또는 직장 내에 삽입하여 검사 진행하는 프로브는?",c:["①","②","③","④","⑤"],a:4,ex:""},
+  {id:112,ch:7,imgs:["69"],q:"(사진 69) 영상에서 화살표 한 것은?",c:["혈류량","혈류방향","동맥과 정맥","혈류속도","반점현상(aliasing)"],a:5,ex:""},
+  {id:113,ch:7,imgs:["70"],q:"(사진 70) 지라 검사 영상이다. 화살표 구조물은?",c:["폐","췌장","심장","부신","가로막"],a:5,ex:""},
+  {id:114,ch:7,imgs:["71"],q:"(사진 71) 두 화살표가 가리키는 허상의 원인은?",c:["흡수","반사","굴절","감쇠","미러링"],a:3,ex:""},
+  {id:115,ch:7,imgs:["71"],q:"(사진 71) 위 영상의 화살표가 가리키는 허상은?",c:["측엽 허상","범위 모호성","ring down 허상","렌즈효과(lens effect)","다중경로반사 허상"],a:4,ex:"렌즈효과에 의한 허상, 복부근육에 의해 초음파 빔이 굴절하여 대동맥이 2개로 관찰된다."},
+  {id:116,ch:8,imgs:["72"],q:"(사진 72) 영상에 관한 설명으로 옳지 않은 것은?",c:["지라가 관찰된다.","지라정맥이 관찰된다.","상장간막동맥이 관찰된다.","위십이지장 동맥이 관찰된다.","렌즈효과에 의해 대동맥이 두 개로 관찰된다."],a:1,ex:"간이 음창을 하고 있으며 이자, 렌즈효과 등이 잘 관찰되고 있다."},
+  {id:117,ch:8,imgs:["72"],q:"(사진 72) 영상에 관한 설명으로 옳은 것은?",c:["대정맥이 관찰된다.","주업틈새가 관찰된다.","미상엽이 잘 관찰된다.","복강동맥 분지부가 잘 관찰된다.","검사 전 특별한 준비사항은 없다."],a:1,ex:""},
+  {id:118,ch:8,imgs:["72"],q:"(사진 72) 영상에서 잘 관찰되지 않는 해부학적 구조물은?",c:["이자","대동맥","간","지라동맥","상장간막동맥"],a:4,ex:""},
+  {id:119,ch:8,imgs:["73"],q:"(사진 73) 영상에 대한 설명으로 옳은 것은?",c:["동맥혈류이다.","심장박동에 영향받지 않는다.","검사 전처치로 금식을 하여야 한다.","도플러 각도는 30° 이하로 시행한다.","혈류 방향은 탐촉자로 다가오고 있다."],a:1,ex:""},
+  {id:120,ch:8,imgs:["74"],q:"(사진 74) 신생아 뇌 검사 영상이다. 설명으로 옳은 것은?",c:["뇌의 가로면이 관찰된다.","선형 프로브를 이용한다.","낮은 주파수를 이용한다.","관상면(coronal) 스캔 영상이다.","검사 전처치로 금식을 하여야 한다."],a:4,ex:""},
+  {id:121,ch:8,imgs:["75"],q:"(사진 75) 고환 검사 영상이다. 옳은 것은?",c:["정낭이 관찰되고 있다.","가로면 검사 영상이다.","높은 주파수를 이용한다.","부고환은 관찰되지 않는다.","직장 경유 탐촉자를 이용한 영상이다."],a:3,ex:""},
+  {id:122,ch:8,imgs:["76","76-1"],q:"(사진 76) 초음파 조영제 검사 영상이다. 설명으로 옳지 않은 것은?",c:["(가)는 조영제 주입 전 영상이다.","병변의 위치 확인이 가능하다.","미세기포 조영제를 사용하여 검사한다.","병변 내에서 조영제의 상태 변화로 종양을 구분할 수 있다.","최근들어 기계지수(mechanical index, MI)를 높게 하고 검사를 한다."],a:5,ex:""},
+  {id:123,ch:8,imgs:["77"],q:"(사진 77) 방광 검사 영상이다. 옳지 않은 것은?",c:["결석이 관찰된다.","다중반사가 관찰된다.","세로면 검사 영상이다.","후방음영 증강이 관찰된다.","화살표는 다중경로반사 허상이다."],a:1,ex:""},
+  {id:124,ch:8,imgs:["78"],q:"(사진 78) 위장 초음파 영상이다. 옳지 않은 것은?",c:["도플러 검사가 가능하다.","기계식 탐촉자를 이용하였다.","파장이 짧은 주파수를 이용한다.","라디알(radial, 방사, 부챗살) 스캔 영상이다.","관강 구조물 내에서 탐촉자를 위치시키고 검사한다."],a:1,ex:""},
+  {id:125,ch:8,imgs:["79"],q:"(사진 79) 사진은 자궁검사 영상이다. 옳은 것은?",c:["가로면 검사 영상이다.","낮은 주파수를 이용한다.","자궁 속막이 관찰되지 않는다.","파장이 긴 주파수를 이용한다.","탐촉자의 질 경유 검사 영상이다."],a:5,ex:""},
+  {id:126,ch:8,imgs:["79"],q:"(사진 79) 사진은 자궁검사 영상이다. 옳은 것은?",c:["난소가 잘 관찰된다.","가로면 검사 영상이다.","방광을 가득 채워서 검사 진행한다.","자궁 속막과 실질의 이상을 확인한다.","투과 깊이가 깊은 주파수 대역을 이용한다."],a:4,ex:""},
+  {id:127,ch:8,imgs:["80"],q:"(사진 80) 사진은 난소검사 영상이다. 옳은 것은?",c:["경복부 검사 영상이다.","난포가 관찰되지 않는다.","방광이 음창역할을 하고 있다.","파장이 짧은 주파수를 이용하였다.","빗살폭인공물(beam-width artifact)이 관찰된다."],a:4,ex:""},
+  {id:128,ch:8,imgs:["81"],q:"(사진 81) 영상에서 화살표 허상이 발생하는 원리는?",c:["회절","흡수","산란","굴절","반사"],a:5,ex:""},
+  {id:129,ch:8,imgs:["82"],q:"(사진 82) 영상에서 화살표 허상이 발생하는 원리는?",c:["흡수","산란","감약","반사","산란"],a:4,ex:""},
+  {id:130,ch:8,imgs:["83"],q:"(사진 83) 영상에서 화살표 표시로 확인하는 것은?",c:["민감도","불용영역","거리 정확성","축방향 분해능","측방향 분해능"],a:2,ex:""},
+  {id:131,ch:8,imgs:["84"],q:"(사진 84) 영상에 대한 설명으로 옳지 않은 것은?",c:["다중반사가 관찰된다.","후방음영이 관찰된다.","간이 쓸개의 음창 역할을 하고 있다.","혜성꼬리(comet tail) 허상이 잘 관찰된다.","쓸개를 잘 보기 위해 파장이 짧은 주파수를 이용하기도 한다."],a:2,ex:""},
+  {id:132,ch:9,imgs:["85"],q:"(사진 85) 화살표 위치는 장에 의해 생긴 현상이다. 발생 원인은?",c:["흡수","산란","감쇠","반사","산란"],a:4,ex:"Gas는 99% 초음파 빔를 반사시킨다."},
+  {id:133,ch:9,imgs:["86"],q:"(사진 86) 화살표 위치와 같이 나타나는 발생 원인은?",c:["흡수","산란","반사","산란","후방음영 증강"],a:3,ex:"간정맥은 초음파 빔이 수직 입사 시 전반사에 의해 WALL ECHO가 있게 관찰된다."},
+  {id:134,ch:9,imgs:["87"],q:"(사진 87) 간 초음파 영상이다. 화살표 위치의 명칭은?",c:["낫인대","원인대","주엽열","횡인대","정맥관삭"],a:3,ex:""},
+  {id:135,ch:9,imgs:["88"],q:"(사진 88) 쓸개 초음파 영상이다. 화살표 허상의 발생원인은?",c:["흡수","산란","반사","산란","후방음영증강"],a:3,ex:"쓸개에서 관찰되는 (링다운(ring down), 혜성꼬리(comet tail)) 허상이다."},
+  {id:136,ch:9,imgs:["89","89-1"],q:"(사진 89) 간 검사영상이다. 노란 화살표 구조물과 빨간 화살표 구조물은 같은 구조물이다. 다르게 나타난 이유는?",c:["전반사","다중반사","후방음영","거울 허상","빔폭 허상"],a:1,ex:""},
+  {id:137,ch:9,imgs:["89","89-1"],q:"(사진 89) 위 영상의 빨간 화살표 같이 벽이 하얗게 나타나게 되는 이유는?",c:["구조물의 경사가 심하여서","초음파 빔이 수직 입사하여서","두 매질의 음향저항이 달라서","초음파 빔이 다중반사가 발생하여서","혈관 구조물로 혈류의 흐름이 불규칙하여서"],a:2,ex:""},
+  {id:138,ch:9,imgs:["90"],q:"(사진 90) 간 검사 영상이다. 화살표 구조물에 대한 설명으로 맞는 것은?",c:["간 문맥이다.","거울허상이 관찰된다.","세로면 검사영상이다.","금식하지 않으면 관찰하기 어렵다.","전반사가 발생하여 벽면이 하얗게 관찰되고 있다."],a:5,ex:""},
+  {id:139,ch:9,imgs:["90"],q:"(사진 90) 위 영상에서 관찰되는 구조물은?",c:["쓸개","이자","간원삭","간정맥","정맥관삭"],a:4,ex:"화살표 구조물은 간정맥으로 벽면이 초음파 빔과 수직일 때 전반사가 발생하여 하얗게 Wall echo가 있게 관찰된다."},
+  {id:140,ch:9,imgs:["91"],q:"(사진 91) 영상에 관한 설명으로 옳은 것은?",c:["정맥혈류이다.","혈관의 깊이를 알 수 없다.","탐촉자로 다가오는 혈류이다.","파형도플러의 가로축은 시간을 가리킨다.","도플러 shift 각도는 30°보다 작게 해야 한다."],a:4,ex:""},
+  {id:141,ch:9,imgs:["91"],q:"(사진 91) 영상에 관한 설명으로 옳지 않은 것은?",c:["동맥혈류 검사이다.","파워도플러 검사이다.","탐축자에서 멀어지는 혈류이다.","혈관이 위치한 깊이를 알 수 있다.","파형도플러로 혈류 속도를 확인할 수 있다."],a:2,ex:""},
+  {id:142,ch:9,imgs:["92"],q:"(사진 92) 영상에 대한 설명으로 옳지 않은 것은?",c:["파워 도플러 영상이다.","혈류방향은 알 수 없다.","혈류속도는 알 수 없다.","미세한 혈류의 흐름을 확인할 수 있다.","혈관이 막힌 경우에 이용하는 검사법이다."],a:5,ex:""},
+  {id:143,ch:9,imgs:["93","93-1"],q:"(사진 93) 왼쪽 검사영상 화살표 위치를 오른쪽 검사영상과 같이 나타나게 하는 방법은?",c:["펄스반복주파수를 줄인다.","혈류의 방향 표시를 바꾼다.","도플러 시프트 각도를 0°로 바꾼다.","환자의 체위를 변경하여 검사한다.","색 기준선(color baseline)을 빨간색쪽으로 키운다."],a:5,ex:""},
+  {id:144,ch:9,imgs:["94"],q:"(사진 94) 자궁 검사영상이다. 스캔 방법은?",c:["원형","가로면","세로면","방사형","관상면"],a:3,ex:""},
+  {id:145,ch:9,imgs:["94"],q:"(사진 94) 위 검사영상에서 노란 화살표는?",c:["찌꺼기(sludge)","거울허상","다중반사","측엽허상","후방음영증강"],a:5,ex:""},
+  {id:146,ch:9,imgs:["95"],q:"(사진 95) 태아 뇌 검사영상이다. 스캔 방법은?",c:["원형","방사면","시상면","관상면","세로면"],a:4,ex:""},
+  {id:147,ch:9,imgs:["96"],q:"(사진 96) 태아 뇌 검사영상이다. 스캔 방법은?",c:["원형","방사면","시상면","관상면","세로면"],a:3,ex:""},
+  {id:148,ch:10,imgs:["97","97-1"],q:"(사진 97) 자궁 검사영상이다. 두 영상에 대한 설명으로 맞는 것은?",c:["두 영상 모두 세로면 검사영상이다.","두 영상에서 공통적으로 후방음영이 관찰된다.","두 영상에서 공통적으로 다중반사가 관찰된다.","(A)와 (B) 영상 중 높은 주파수를 이용한 영상은 (B)이다.","(B) 영상은 (A) 검사 중 이상부위를 잘 보기 위해 소변을 채우고 검사한 영상이다."],a:1,ex:""},
+  {id:149,ch:10,imgs:["97","97-1"],q:"(사진 97) (A) 검사영상 설명으로 올바른 것은?",c:["가로면 검사영상이다.","난소가 잘 관찰되고 있다.","자궁에 낭포(cyst)가 관찰되고 있다.","경복부보다 낮은 주파수로 검사 진행한다.","경질 또는 경직장으로 검사 진행한 영상이다."],a:5,ex:""},
+  {id:150,ch:10,imgs:["98"],q:"(사진 98) 위 영상에 대한 설명으로 맞는 것은?",c:["갑상샘이 관찰된다.","세로면 검사 영상이다.","목정맥이 양쪽에서 잘 관찰된다.","후방음영증강이 잘 관찰되고 있다.","파장이 긴 주파수대역을 이용한 영상이다."],a:1,ex:""},
+  {id:151,ch:10,imgs:[],choices_img:true,q:"다음 중 가로면 검사영상은?",c:["①","②","③","④","⑤"],a:1,ex:""},
+  {id:152,ch:10,imgs:["99"],q:"(사진 99)는 심장초음파 검사영상이다. 위 영상의 노란 화살표 위치 구조물은?",c:["이첨판","삼첨판","승모판","대동맥판","폐동맥판"],a:3,ex:""},
+  {id:153,ch:10,imgs:["100"],q:"(사진 100) 심장 흉골연 장축(parasternal long-axis view) 검사 영상이다. 노란 화살표 구조물은?",c:["이첨판","삼첨판","승모판","대동맥판","폐동맥판"],a:4,ex:""},
+  {id:154,ch:10,imgs:["101"],q:"(사진 101) 간과 위장 검사 영상이다. 노란 화살표 위치 허상은?",c:["측엽허상","빔폭허상","링다운허상","혜성꼬리허상","grating lobe허상"],a:3,ex:""},
+  {id:155,ch:10,imgs:["101"],q:"(사진 101) 위 영상의 노란 화살표 위치 허상 발생 원인은?",c:["반사","투과","흡수","산란","굴절"],a:1,ex:""},
+  {id:156,ch:10,imgs:["102"],q:"(사진 102) 간과 쓸개 검사 영상이다. 노란 화살표 위치의 sign은?",c:["ring sign","shot gun sign","micky mouse sign","parallel channel sign","double wall echo sign"],a:5,ex:""},
+  {id:157,ch:10,imgs:["103","103-1"],q:"(사진 103) 사진은 임신기 산과검사 영상이다. 공통적으로 무엇을 확인하는 것인가?",c:["태령","복부 둘레","머리크기","태낭 크기","세로면 정확도"],a:1,ex:""},
+  {id:158,ch:10,imgs:["103","103-1"],q:"(사진 103) 영상에 대한 설명으로 옳은 것은?",c:["(가)는 복부둘레 계측 영상이다.","(나)에서 난황낭이 관찰된다.","(나)는 정둔장 길이 계측 영상이다.","난소가 관찰되고 있다.","임신기 태아 위치 확인 영상이다."],a:3,ex:""},
+  {id:159,ch:10,imgs:["104"],q:"(사진 104) 영상에서 확인하는 것은?",c:["초점","불용영역","동적 영역","깊이 정확성","크기별 낭성구조물 확인 깊이"],a:5,ex:""},
+  {id:160,ch:10,imgs:["105","105-1"],q:"(사진 105) 쓸개 검사이다. 왼쪽과 같이 화살표와 관찰되던 종괴가, 오른쪽과 같이 이상 없이 관찰되었다. 화살표 허상은?",c:["측엽허상","빔폭허상","링다운허상","혜성꼬리허상","grating lobe허상"],a:2,ex:""},
+  {id:161,ch:10,imgs:["105","105-1"],q:"(사진 105) 위 영상의 별표와 같은 허상은?",c:["링다운","다중반사","모자이크","트윙클허상","후방음영 증강"],a:5,ex:""},
+  {id:162,ch:10,imgs:["105","105-1"],q:"(사진 105) 위 영상의 별표 위치 허상은 주위 조직보다 무엇이 커서 발생한 것인가?",c:["흡수","반사","산란","굴절","투과"],a:5,ex:""},
+  {id:163,ch:11,imgs:["106"],q:"(사진 106) 췌장 검사 영상이다. 화살표 위치 해부학적 명칭은?",c:["췌관","간동맥","충담관","상장간막정맥","위십이지장동맥"],a:4,ex:""},
+  {id:164,ch:11,imgs:["106"],q:"(사진 106) 위 영상의 스캔 방법은?",c:["늑간 스캔","세로면 스캔","가로면 스캔","라디알 스캔","늑골아래 스캔"],a:3,ex:""},
+  {id:165,ch:11,imgs:["106"],q:"(사진 106) 위 영상에 대한 설명으로 옳은 것은?",c:["충담관이 잘 관찰된다.","겸상돌기가 잘 관찰된다.","췌장 꼬리부가 잘 관찰된다.","위장이 음창 역할하고 있다.","위십이지장동맥이 잘 관찰된다."],a:2,ex:""},
+  {id:166,ch:11,imgs:["107"],q:"(사진 107) 간 검사 영상이다. 스캔 방법은 무엇인가?",c:["늑간 스캔","세로면 스캔","가로면 스캔","라디알 스캔","늑골아래 스캔"],a:1,ex:""},
+  {id:167,ch:11,imgs:["107"],q:"(사진 107) 위 영상에서 빨간 화살표의 해부학적 명칭은?",c:["근육","가로막","낫인대","주업열","겸상인대"],a:2,ex:""},
+  {id:168,ch:11,imgs:["107"],q:"(사진 107) 위 영상에서 노란 화살표 혈관은 코나드 분류에 따른 몇 번 위치로 주행하는가?",c:["S8","S7","S6","S5","S4"],a:4,ex:""},
+  {id:169,ch:11,imgs:["108"],q:"(사진 108) 간 검사 영상이다. 빨간 화살표 위치 해부학적 명칭은?",c:["문맥","대정맥","간동맥","간정맥","비장 동맥"],a:4,ex:""},
+  {id:170,ch:11,imgs:["108"],q:"(사진 108) 위 영상의 스캔 방법은?",c:["늑간 스캔","세로면 스캔","가로면 스캔","라디알 스캔","늑골아래 스캔"],a:1,ex:""},
+  {id:171,ch:11,imgs:["108"],q:"(사진 108) 위 영상에서 머리쪽은?",c:["1","2","3","4","5"],a:1,ex:""},
+  {id:172,ch:11,imgs:["109"],q:"(사진 109) 영상에 대한 설명으로 옳은 것은?",c:["혈류량을 알 수 있다.","혈류 방향을 알 수 있다.","혈류 속도를 알 수 있다.","동맥 혈류만 표현해주는 도플러 영상이다.","혈류의 흐름만 있어도 표현해 주는 파워도플러 영상이다."],a:5,ex:""},
+  {id:173,ch:11,imgs:["110"],q:"(사진 110) 췌장 검사 영상이다. 빨간 화살표 위치는?",c:["대동맥","겸상돌기","비장정맥","비장 머리부","비장 꼬리부"],a:1,ex:""},
+  {id:174,ch:11,imgs:["110"],q:"(사진 110) 노란 화살표 위치는?",c:["대동맥","겸상돌기","비장정맥","비장 머리부","췌장 꼬리부"],a:5,ex:""},
+  {id:175,ch:11,imgs:["110"],q:"(사진 110) 파란 화살표 위치는?",c:["대동맥","겸상돌기","비장정맥","췌장 머리부","췌장 꼬리부"],a:4,ex:""},
+  {id:176,ch:11,imgs:["110"],q:"(사진 110) 초록 화살표 위치는?",c:["대동맥","겸상돌기","비장정맥","비장 머리부","비장 꼬리부"],a:2,ex:""},
+  {id:177,ch:11,imgs:["110"],q:"(사진 110) 흰 화살표 위치는?",c:["대동맥","겸상돌기","비장정맥","비장 머리부","비장 꼬리부"],a:3,ex:""},
+  {id:178,ch:11,imgs:["111"],q:"(사진 111) 사진은 색도플러 QA 영상이다. 무엇을 확인하는 것인가?",c:["혈류속도","동적영역","혈관 직경","도플러 각도","색도플러 감도"],a:5,ex:""},
+  {id:179,ch:11,imgs:["112"],q:"(사진 112) 영상에 대한 설명으로 옳지 않은 것은?",c:["늑간 스캔 영상이다.","간정맥이 관찰된다.","가로막이 관찰된다.","간 초음파 검사 영상이다.","후방음영 증강이 관찰된다."],a:1,ex:""},
+  {id:180,ch:11,imgs:["112"],q:"(사진 112) 영상에 대한 설명으로 옳지 않은 것은?",c:["간동맥이 관찰된다.","가로막이 관찰된다.","낭성 구조물이 관찰된다.","늑골아래 스캔 영상이다.","화살표 부위는 거울허상이다."],a:1,ex:""},
+  {id:181,ch:12,imgs:["113"],q:"(사진 113) 영상은 쓸개 검사 영상이다. 옳지 않은 것은?",c:["결석이 관찰된다.","후방음영이 관찰된다.","후방음영증강이 관찰된다.","검사를 위해 금식을 하여야 한다.","쓸개 내부에서 혜성꼬리 허상이 관찰된다."],a:5,ex:""},
+  {id:182,ch:12,imgs:["114"],q:"(사진 114) 영상은 산과 초음파 검사이다. 설명으로 틀린 것은?",c:["태령 계측 영상이다.","복부 둘레 계측 영상이다.","화살표는 태아 위장이다.","임신 초기에 계측하는 방법이다.","위장과 간, 간내 왼문맥 제대동맥이 관찰되는 곳에서 계측한다."],a:4,ex:""},
+  {id:183,ch:12,imgs:["115","115-1"],q:"(사진 115) 영상은 태아의 태령을 계측한 것으로, 옳은 것은?",c:["(가)는 초기 임신기 때 계측한다.","(가)는 손가락 길이를 계측한 것이다.","(나)는 복부둘레를 계측한 것이다.","(나)는 자궁 안으로 프로브를 삽입하게 검사한다.","(가)와 (나) 모두 파장이 짧은 주파수를 이용하여 검사한다."],a:3,ex:"(가)는 넙다리뼈 길이를 계측한 것이다."},
+  {id:184,ch:12,imgs:["116"],q:"(사진 116) 영상에서 화살표와 같이 나타나는 것은?",c:["다중반사","거울 허상","후방음영 증강","찌꺼기(sludge)","결엽인공물(side lobe artifact, 부극 현상)"],a:5,ex:""},
+  {id:185,ch:12,imgs:["117","117-1"],q:"(사진 117) 영상은 자궁검사 영상이다. 옳은 설명은?",c:["다중반사가 관찰된다.","다중경로반사허상이 관찰된다.","질 경우 탐촉자를 이용한 영상이다.","(가)는 자궁의 가로면 검사 영상이다.","(나)는 방광의 세로면 영상이다."],a:1,ex:""},
+  {id:186,ch:12,imgs:["117","117-1"],q:"(사진 117) 영상에 대한 설명으로 옳지 않은 것은?",c:["후방음영이 관찰된다.","경복부 초음파 영상이다.","(가)는 세로면 검사 영상이다.","(나)는 가로면 검사 영상이다.","방광이 음창 역할을 하도록 소변을 채우고 검사 진행한다."],a:1,ex:""},
+  {id:187,ch:12,imgs:["118"],q:"(사진 118) 지라 검사영상이다. 노란 화살표 위치 해부학적 명칭은?",c:["췌관","가로막","갈비뼈","지라 정맥","지라 동맥"],a:2,ex:""},
+  {id:188,ch:12,imgs:["118"],q:"(사진 118) 위 영상 스캔 방법은?",c:["늑간 스캔","세로면 스캔","가로면 스캔","라디알 스캔","늑골아래 스캔"],a:2,ex:""},
+  {id:189,ch:12,imgs:["118"],q:"(사진 118) 위 영상에 대한 설명으로 옳은 것은?",c:["이자 정맥이 잘 관찰된다.","겸상돌기가 잘 관찰된다.","이자 꼬리부가 잘 관찰된다.","콩팥이 세로면으로 관찰되고 있다.","콩팥이 이자의 음창역할을 하고 있다."],a:4,ex:""},
+  {id:190,ch:12,imgs:["118"],q:"(사진 118) 위 영상에서 빨간 화살표 구조물의 해부학적 명칭은?",c:["이자","지라","콩팥","자궁","전립샘"],a:3,ex:""},
+  {id:191,ch:12,imgs:["119"],choices_img:true,q:"(사진 119) 사진의 탐측자로 검사한 영상은?",c:["①","②","③","④","⑤"],a:3,ex:""},
+  {id:192,ch:12,imgs:["120","120-1"],q:"(사진 120) 영상에서 공통으로 관찰되는 것은?",c:["결석","석화화 병변","낭성 구조물","혜성꼬리 허상","여운허상(ring-down artifact)"],a:3,ex:""},
+  {id:193,ch:12,imgs:["121"],q:"(사진 121) 영상에서 관찰되는 현상은?",c:["다중반사","거울 허상","후방음영 증강","찌꺼기(sludge)","결엽(side lobe, 부극)허상"],a:2,ex:""},
+  {id:194,ch:12,imgs:["121"],q:"(사진 121) 영상 좌측에서 보이던 현상을 우측과 같이 개선하는 방법은?",c:["주파수를 높인다.","도플러 각도 변경","펄스반복 주파수 증강","기준선(base line) 변경","수신(receive) 게인(gain, 획득, 증폭)을 줄인다."],a:5,ex:""},
+  {id:195,ch:12,imgs:["122","122-1"],q:"(사진 122) 왼쪽 영상을 오른쪽 같이 바꾸기 위해 조절하는 것은?",c:["gain","TGC","focus","동적영역","dead zone"],a:4,ex:""},
+  {id:196,ch:12,imgs:["123","123-1"],q:"(사진 123) 왼쪽 영상을 오른쪽 영상과 같이 얻기 위해 조절할 수 있는 것은?",c:["gain","focus","동적영역","probe 방향","측방향 분해능"],a:1,ex:""},
+  {id:197,ch:12,imgs:["124"],q:"(사진 124) 이자 검사영상이다. 빨간 화살표 위치는?",c:["대동맥","대정맥","지라정맥","상장간막동맥","왼쪽 콩팥 정맥"],a:5,ex:""},
+  {id:198,ch:12,imgs:["124"],q:"(사진 124) 이자 검사영상이다. 초록 화살표 위치는?",c:["대동맥","겸상돌기","지라정맥","지라 머리부","이자 꼬리부"],a:3,ex:""},
+  {id:199,ch:12,imgs:["124"],q:"(사진 124) 파란 화살표 구조물은 위장이다. 흰 화살표처럼 나타나는 것은?",c:["공기","음식물","위장 정맥","위장 동맥","비장 꼬리부"],a:1,ex:""},
+  {id:200,ch:12,imgs:["124"],q:"(사진 124) 노란 화살표 허상은?",c:["후방음영","다중반사","거울 허상","링다운 허상","혜성꼬리 허상"],a:4,ex:""},
+  {id:201,ch:12,imgs:["124"],q:"(사진 124) 위 영상 설명으로 올바른 것은?",c:["이자 정맥이 잘 관찰된다.","이자 동맥이 잘 관찰된다.","이자가 잘 관찰되지 않는다.","이자 가로면으로 관찰되고 있다.","이자 머리부에서 위십이지장 정맥이 관찰된다."],a:4,ex:""},
+  {id:202,ch:12,imgs:["125"],q:"(사진 125) 화살표 구조물은?",c:["쓸개","문맥","췌장","대동맥","충담관"],a:2,ex:""},
+  {id:203,ch:12,imgs:["125"],q:"(사진 125) 별표 구조물은?",c:["쓸개","문맥","췌장","대동맥","충담관"],a:1,ex:""},
+  {id:204,ch:12,imgs:[],choices_img:true,q:"가로면 스캔 방향은?",c:["①","②","③","④","⑤"],a:3,ex:""},
+  {id:205,ch:12,imgs:["126"],q:"(사진 126) 복수 흡인천자 영상이다. 화살표 허상은?",c:["측엽","다중반사","링다운","혜성꼬리","grating lobe"],a:5,ex:""},
+  {id:206,ch:12,imgs:["127","127-1"],q:"(사진 127) 왼쪽 영상을 오른쪽과 같이 조정하는 것은?",c:["gain","TGC","focus","동적영역","축방향 분해능"],a:2,ex:""},
+  {id:207,ch:12,imgs:["128"],q:"(사진 128) 영상의 스캔 방법은?",c:["가로면","세로면","관상면","갈비뼈아래","갈비뼈사이"],a:2,ex:""},
+  {id:208,ch:12,imgs:["128"],q:"(사진 128) 영상에서 화살표한 곳의 명칭은?",c:["대동맥","대정맥","이자동맥","비장정맥","상장간막동맥"],a:5,ex:""},
+  {id:209,ch:12,imgs:["129"],q:"(사진 129) 영상에 대한 설명으로 옳은 것은?",c:["정맥 검사 영상이다.","혈류 속도를 알 수 없다.","혈류의 진행방향을 알 수 있다.","부채꼴형 프로브를 이용하여 검사한다.","투과깊이가 깊은 주파수를 이용한 영상이다."],a:3,ex:"동맥혈류 파형으로 속도 표기가 \"-\"로 되어 프로브에서 멀어지는 혈류이다."},
+  {id:210,ch:12,imgs:["129"],q:"(사진 129) 영상에 대한 설명으로 옳은 것은?",c:["정맥혈류이다.","시간에 따른 혈류 속도를 알 수 없다.","파장이 긴 주파수를 이용한 영상이다.","혈관이 막힌 것을 나타내는 파형이다.","프로브로부터 멀어지는 혈류 영상이다."],a:5,ex:"동맥혈류 파형으로 속도 표기가 \"-\"로 되어 프로브에서 멀어지는 혈류이다."},
+  {id:211,ch:12,imgs:["130"],q:"(사진 130) 조직검사 영상이다. 원표시 현상은?",c:["후방음영","측방음영","혜성꼬리 허상","Ring down 허상","다중경로반사 허상"],a:3,ex:""},
+  {id:212,ch:12,imgs:["131","131-1"],q:"(사진 131) 간 초음파 영상과 MRI 검사 영상이다. 설명으로 옳은 것은?",c:["물가슴증(흉수)이 관찰된다.","화살표는 혜성꼬리 허상이다.","화살표시는 간에서 발생한 것이다.","높은 주파수를 이용한 검사 영상이다.","오른쪽 MRI 사진과 초음파 사진의 장기 위치를 맞추는 fusion 검사이다."],a:5,ex:"간 앞쪽 무에코 부위가 복수이다."},
+];
+// ════════════════════════════════════════════
+// 과목별 Q 배열 매핑
+// ════════════════════════════════════════════
+const Q_MAP = { xray: Q, us: Q_US };
+
+function subjKey() { return curSubj ? curSubj.key : 'default'; }
+function save(key, val) { try { localStorage.setItem('rv2_'+key, JSON.stringify(val)); } catch(e){} }
+function load(key, def) { try { const v = localStorage.getItem('rv2_'+key); return v ? JSON.parse(v) : def; } catch(e){ return def; } }
+function saveSubj(type, val) { save(subjKey()+'_'+type, val); }
+function loadSubj(type, def) { return load(subjKey()+'_'+type, def); }
+
+let wrongMap = {};
+let bmMap = {};
+let memoStreakMap = {}; // {qId: streakCount} 과목별 암기 스트릭
+function saveWrong() { saveSubj('wrong', wrongMap); }
+function saveBm() { saveSubj('bm', bmMap); }
+function saveMemoStreak() { saveSubj('memo', memoStreakMap); }
+function loadSubjData() {
+  wrongMap = loadSubj('wrong', {});
+  bmMap = loadSubj('bm', {});
+  memoStreakMap = loadSubj('memo', {});
+}
+
+// ════════════════════════════════════════════
+// 자동넘기기 설정
+// ════════════════════════════════════════════
+function getAutoSettings() {
+  try {
+    const r = JSON.parse(localStorage.getItem('rv2_auto')||'{}');
+    return {
+      on: !!r.on,
+      base: [1,2,3,4,5].includes(Number(r.base)) ? Number(r.base) : 2,
+      extra: [0,1,2,3].includes(Number(r.extra)) ? Number(r.extra) : 1
+    };
+  } catch(e) { return {on:false, base:2, extra:1}; }
+}
+function setAutoSettings(d) { try { localStorage.setItem('rv2_auto', JSON.stringify(d)); } catch(e){} }
+
+let autoTimer = null;
+let autoProgressInterval = null;
+
+function clearAutoTimer() {
+  if(autoTimer){ clearTimeout(autoTimer); autoTimer=null; }
+  if(autoProgressInterval){ clearInterval(autoProgressInterval); autoProgressInterval=null; }
+  const bar = document.getElementById('autoNextProgress');
+  if(bar) bar.style.display='none';
+}
+
+function scheduleAutoNext(isRight) {
+  clearAutoTimer();
+  const s = getAutoSettings();
+  if(!s.on) return;
+  const wait = (s.base + (isRight ? 0 : s.extra)) * 1000;
+  const bar = document.getElementById('autoNextProgress');
+  const fill = document.getElementById('autoNextProgressFill');
+  if(bar && fill) {
+    bar.style.display = 'block';
+    fill.style.transition = 'none';
+    fill.style.width = '100%';
+    setTimeout(()=>{ fill.style.transition = `width ${wait}ms linear`; fill.style.width='0%'; }, 30);
+  }
+  autoTimer = setTimeout(()=>{ clearAutoTimer(); nextQ(); }, wait);
+}
+
+function updateAutoNextBadge() {
+  const s = getAutoSettings();
+  const badge = document.getElementById('autoNextBadge');
+  if(!badge) return;
+  if(!s.on) { badge.textContent='⏱ 자동넘김 OFF'; badge.style.color='var(--text2)'; badge.style.background='var(--bg3)'; badge.style.borderColor='var(--border)'; return; }
+  badge.textContent = s.extra>0 ? `⏱ ${s.base}초 +${s.extra}초` : `⏱ ${s.base}초`;
+  badge.style.color='var(--accent)';
+  badge.style.background='rgba(122,162,247,0.1)';
+  badge.style.borderColor='rgba(122,162,247,0.25)';
+}
+
+function openAutoNextSettings() {
+  const s = getAutoSettings();
+  document.getElementById('autoNextToggle').checked = s.on;
+  document.getElementById('autoNextFields').style.opacity = s.on ? '1' : '.45';
+  // update base buttons
+  document.querySelectorAll('#autoNextBaseBtns .settings-time-btn').forEach(btn => {
+    btn.classList.toggle('active', Number(btn.dataset.val) === s.base);
+  });
+  // update extra buttons
+  document.querySelectorAll('#autoNextExtraBtns .settings-time-btn').forEach(btn => {
+    btn.classList.toggle('active', Number(btn.dataset.val) === s.extra);
+  });
+  document.getElementById('autoNextModal').classList.add('show');
+}
+function closeAutoNextSettings() { document.getElementById('autoNextModal').classList.remove('show'); }
+function toggleAutoNext(checked) {
+  const s = getAutoSettings(); s.on = checked; setAutoSettings(s);
+  document.getElementById('autoNextFields').style.opacity = checked ? '1' : '.45';
+  updateAutoNextBadge(); clearAutoTimer();
+}
+function selectTimeSetting(type, val) {
+  const s = getAutoSettings();
+  if(type==='base') s.base = val;
+  else s.extra = val;
+  setAutoSettings(s);
+  updateAutoNextBadge();
+  document.querySelectorAll(`#autoNext${type==='base'?'Base':'Extra'}Btns .settings-time-btn`).forEach(btn => {
+    btn.classList.toggle('active', Number(btn.dataset.val) === val);
+  });
+}
+function updateAutoNextSettings() { /* kept for compat */ }
+
+// ════════════════════════════════════════════
+// 상태
+// ════════════════════════════════════════════
+let curSubj = null;
+let curQueue = [];
+let curIdx = 0;
+let answered = [];
+let selected = [];
+let memoMode = false;
+let memoStreak = [];
+let quizMode = '';
+let pendingChId = null;
+
+// ════════════════════════════════════════════
+// 화면 전환
+// ════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById(id).scrollTo(0, 0);
+}
+function goHome() { clearAutoTimer(); showScreen('homeScreen'); }
+
+function goHomeFromQuiz() {
+  clearAutoTimer();
+  showModal('홈으로 나가기', '풀기를 중단하고 홈으로 이동할까요?', [
+    {label:'나가기', color:'var(--red)', bg:'rgba(239,71,111,0.1)', border:'rgba(239,71,111,0.25)', fn: ()=>{ closeModal(); goHome(); }},
+    {label:'계속하기', color:'var(--text2)', bg:'var(--bg3)', border:'var(--border)', fn: closeModal}
+  ]);
+}
+
+function showSubject() {
+  if (!curSubj) { goHome(); return; }
+  updateSubjStats();
+  showScreen('subjectScreen');
+}
+
+// ════════════════════════════════════════════
+// HOME
+// ════════════════════════════════════════════
+function renderHome() {
+  const list = document.getElementById('subjectList');
+  list.innerHTML = SUBJECTS.map(s => {
+    const wMap = JSON.parse(localStorage.getItem('rv2_'+s.key+'_wrong')||'{}');
+    const bMap = JSON.parse(localStorage.getItem('rv2_'+s.key+'_bm')||'{}');
+    const wCount = Object.keys(wMap).filter(id=>(wMap[id]||0)>0).length;
+    const bmCount = Object.keys(bMap).filter(id=>bMap[id]).length;
+    return `<div class="subj-card" onclick="openSubject('${s.key}')"
+      style="border-color:${s.borderColor};background:linear-gradient(135deg,${s.color},transparent);">
+      <div class="subj-icon" style="background:${s.iconBg};color:${s.iconColor};">${s.icon}</div>
+      <div class="subj-info">
+        <div class="subj-name">${s.name}</div>
+        <div class="subj-meta">총 ${Q.length}문제 · 오답 ${wCount} · 북마크 ${bmCount}</div>
+      </div>
+      <div class="subj-arrow">›</div>
+    </div>`;
+  }).join('');
+}
+
+function openSubject(key) {
+  curSubj = SUBJECTS.find(s => s.key === key);
+  // 과목별 Q 배열 전환
+  Q = Q_MAP[key] || Q_MAP.xray;
+  loadSubjData();
+  updateSubjStats();
+  renderSubjectMenu();
+  showScreen('subjectScreen');
+}
+
+// ════════════════════════════════════════════
+// 과목 상세
+// ════════════════════════════════════════════
+function updateSubjStats() {
+  const wCount = Object.keys(wrongMap).filter(id => !id.startsWith('_ok_') && (wrongMap[id]||0)>0).length;
+  const bmCount = Object.keys(bmMap).filter(id => bmMap[id]).length;
+  document.getElementById('subjectTitle').textContent = curSubj.name;
+  document.getElementById('subjectSub').textContent = `${Q.length}문제`;
+  document.getElementById('statTotal').textContent = Q.length;
+  document.getElementById('statWrong').textContent = wCount;
+  document.getElementById('statBm').textContent = bmCount;
+}
+
+function renderSubjectMenu() {
+  const sec = document.getElementById('menuSection');
+  const wrongCnt = Object.keys(wrongMap).filter(id=>(wrongMap[id]||0)>0).length;
+  const bmCnt = Object.keys(bmMap).filter(id=>bmMap[id]).length;
+  sec.innerHTML = `
+    <div class="section-label" style="padding:0 4px 8px;">풀기 모드</div>
+    <div class="menu-card full" onclick="startQuiz('full')">
+      <div class="menu-icon">📋</div>
+      <div class="menu-info"><div class="menu-name">전체 순서대로 풀기</div><div class="menu-desc">처음부터 끝까지 순서대로</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="menu-card random" onclick="startQuiz('random')">
+      <div class="menu-icon">🔀</div>
+      <div class="menu-info"><div class="menu-name">전체 랜덤 풀기</div><div class="menu-desc">문제를 무작위로 섞어서</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="menu-card chapter" onclick="showChapter()">
+      <div class="menu-icon">📂</div>
+      <div class="menu-info"><div class="menu-name">챕터별 풀기</div><div class="menu-desc">파트별로 나누어서</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="menu-card" style="background:linear-gradient(135deg,rgba(217,193,115,0.14),rgba(217,193,115,0.04));border-color:rgba(217,193,115,0.28);" onclick="showCumul()">
+      <div class="menu-icon" style="background:rgba(217,193,115,0.14);color:var(--yellow);">📈</div>
+      <div class="menu-info"><div class="menu-name">누적 풀기</div><div class="menu-desc">블록 단위 누적 학습</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="menu-card memo" onclick="openMemoMode()">
+      <div class="menu-icon">🧠</div>
+      <div class="menu-info"><div class="menu-name">암기 모드</div><div class="menu-desc">3연속 정답 시 제거</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="menu-card" style="background:linear-gradient(135deg,rgba(239,138,149,0.15),rgba(239,138,149,0.04));border-color:rgba(239,138,149,0.3);" onclick="showExamSetup()">
+      <div class="menu-icon" style="background:rgba(239,138,149,0.15);color:var(--red);">📝</div>
+      <div class="menu-info"><div class="menu-name">모의고사 모드</div><div class="menu-desc">문제 수·시간 설정 후 시험</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="section-label" style="padding:8px 4px 8px;">복습 모드</div>
+    <div class="menu-card review" onclick="startQuiz('wrong')">
+      <div class="menu-icon">✗</div>
+      <div class="menu-info"><div class="menu-name">오답 풀기</div><div class="menu-desc">틀린 문제만 다시 · ${wrongCnt}문제</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="menu-card bookmark" onclick="startQuiz('bookmark')">
+      <div class="menu-icon">★</div>
+      <div class="menu-info"><div class="menu-name">북마크 풀기</div><div class="menu-desc">저장한 문제만 · ${bmCnt}문제</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="section-label" style="padding:8px 4px 8px;">확인 / 목록</div>
+    <div class="menu-card wrong" onclick="showList('wrong')">
+      <div class="menu-icon">📊</div>
+      <div class="menu-info"><div class="menu-name">오답 목록</div><div class="menu-desc">틀린 문제 보기</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="menu-card bookmark" onclick="showList('bookmark')">
+      <div class="menu-icon">📌</div>
+      <div class="menu-info"><div class="menu-name">북마크 목록</div><div class="menu-desc">저장한 문제 보기</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+    <div class="menu-card qa" onclick="showQA()">
+      <div class="menu-icon">⚡</div>
+      <div class="menu-info"><div class="menu-name">빠른 정답 확인</div><div class="menu-desc">번호·정답·사진 한눈에</div></div>
+      <div class="menu-arrow">›</div>
+    </div>
+  `;
+}
+
+// ════════════════════════════════════════════
+// 챕터
+// ════════════════════════════════════════════
+function showChapter() {
+  const list = document.getElementById('chapterList');
+  document.getElementById('chapterSub').textContent = curSubj.name;
+  list.innerHTML = curSubj.chapters.map(ch => {
+    const qs = Q.filter(q => q.ch === ch.id);
+    const wCount = qs.filter(q => (wrongMap[q.id]||0)>0).length;
+    return `<div class="ch-item" onclick="openChMode(${ch.id})">
+      <div class="ch-badge">CH${ch.id}</div>
+      <div class="ch-info">
+        <div class="ch-name">${ch.name}</div>
+        <div class="ch-meta">${qs.length}문제</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        ${wCount>0 ? `<div class="ch-wrong-badge">오답 ${wCount}</div>` : ''}
+        <div class="subj-arrow">›</div>
+      </div>
+    </div>`;
+  }).join('');
+  showScreen('chapterScreen');
+}
+
+function openChMode(chId) {
+  pendingChId = chId;
+  const ch = curSubj.chapters.find(c => c.id === chId);
+  document.getElementById('chModeTitle').textContent = `CH${chId} ${ch ? ch.name : ''}`;
+  document.getElementById('chModeSub').textContent = '풀기 방식을 선택하세요';
+  document.getElementById('chModeModal').classList.add('show');
+}
+function closeChModeModal() { document.getElementById('chModeModal').classList.remove('show'); }
+function startChQuiz(order) {
+  closeChModeModal();
+  startQuiz(order==='random' ? 'chapter-random' : 'chapter', pendingChId);
+}
+
+// ════════════════════════════════════════════
+// 퀴즈 시작
+// ════════════════════════════════════════════
+function startQuiz(mode, chId) {
+  clearAutoTimer();
+  quizMode = mode;
+  memoMode = (mode === 'memo');
+
+  let pool = [...Q];
+  if (mode === 'chapter') { pool = Q.filter(q => q.ch === chId); }
+  else if (mode === 'chapter-random') { pool = shuffle(Q.filter(q => q.ch === chId)); }
+  else if (mode === 'wrong') { pool = Q.filter(q => (wrongMap[q.id]||0)>0); }
+  else if (mode === 'bookmark') { pool = Q.filter(q => bmMap[q.id]); }
+  else if (mode === 'random') { pool = shuffle([...Q]); }
+  else if (mode === 'memo') { pool = [...Q]; }
+  else if (mode === 'memo-random') { pool = shuffle([...Q]); memoMode = true; }
+  else if (mode === 'memo-chapter') { pool = Q.filter(q => q.ch === chId); memoMode = true; }
+  else if (mode === 'memo-chapter-random') { pool = shuffle(Q.filter(q => q.ch === chId)); memoMode = true; }
+
+  if (pool.length === 0) { showToast('해당 문제가 없어요!'); return; }
+
+  curQueue = pool;
+  curIdx = 0;
+  answered = new Array(pool.length).fill(false);
+  selected = new Array(pool.length).fill(null);
+  if (memoMode) memoStreak = pool.map(q => memoStreakMap[q.id]||0);
+  else if (mode === 'wrong') memoStreak = new Array(pool.length).fill(0); // 오답풀기도 스트릭 초기화
+  else memoStreak = [];
+
+  const modeLabels = {full:'📋 전체순서대로', random:'🔀 전체랜덤', chapter:'📂 챕터', 'chapter-random':'📂 랜덤챕터', wrong:'✗ 오답', bookmark:'★ 북마크', memo:'🧠 암기', 'memo-random':'🧠 암기랜덤', 'memo-chapter':'🧠 챕터암기', 'memo-chapter-random':'🧠 챕터암기랜덤'};
+  document.getElementById('modeBadge').textContent = modeLabels[mode] || mode;
+
+  document.getElementById('quizBackBtn').onclick = () => {
+    clearAutoTimer();
+    showModal('나가기', '풀기를 중단하고 나가시겠어요?', [
+      {label:'나가기', color:'var(--red)', bg:'rgba(239,71,111,0.1)', border:'rgba(239,71,111,0.25)', fn: ()=>{ closeModal(); showSubject(); }},
+      {label:'계속하기', color:'var(--text2)', bg:'var(--bg3)', border:'var(--border)', fn: closeModal}
+    ]);
+  };
+
+  updateAutoNextBadge();
+  renderQuiz();
+  showScreen('quizScreen');
+}
+
+function shuffle(arr) {
+  for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+  return arr;
+}
+
+// ════════════════════════════════════════════
+// 퀴즈 렌더
+// ════════════════════════════════════════════
+function renderQuiz() {
+  const q = curQueue[curIdx];
+  const isAns = answered[curIdx];
+  const total = curQueue.length;
+
+  document.getElementById('progressText').textContent = `${curIdx+1} / ${total}`;
+  document.getElementById('progressFill').style.width = `${((curIdx+1)/total)*100}%`;
+
+  const bm = document.getElementById('bookmarkBtn');
+  bm.textContent = bmMap[q.id] ? '★' : '🔖';
+  bm.className = 'quiz-btn' + (bmMap[q.id] ? ' bookmark-on' : '');
+
+  document.getElementById('nextBtn').textContent = curIdx===total-1 ? '완료' : '다음';
+  document.getElementById('nextBtn').className = 'nav-btn btn-next' + (curIdx===total-1 ? ' final' : '');
+
+  // 정답/오답 카운트 배지 업데이트
+  const okCnt = wrongMap['_ok_'+q.id] || 0;
+  const failCnt = wrongMap[q.id] || 0;
+  const scoreBadge = document.getElementById('scoreBadge');
+  if(scoreBadge) {
+    if(okCnt>0 || failCnt>0) {
+      scoreBadge.style.display='inline-flex';
+      scoreBadge.innerHTML = (okCnt>0?`<span class="sc-ok">정답 ${okCnt}회</span>`:'') + (okCnt>0&&failCnt>0?' ':'')+  (failCnt>0?`<span class="sc-fail">오답 ${failCnt}회</span>`:'');
+    } else {
+      scoreBadge.style.display='none';
+    }
+  }
+
+  // 이미지 HTML
+  const imgs = q.imgs || [];
+  let imgHtml = '';
+  if (imgs.length === 1) {
+    imgHtml = `<div class="q-img-wrap"><img src="${img(imgs[0])}" alt="사진" onclick="openFullscreen('${img(imgs[0])}')" onerror="this.style.display='none'"></div>`;
+  } else if (imgs.length >= 2) {
+    const cls = imgs.length >= 3 ? 'three' : 'two';
+    imgHtml = `<div class="q-imgs-row ${cls}">`;
+    imgs.forEach((im, i) => {
+      const cap = imgs.length>=3 ? ['(가)','(나)','(다)'][i] : ['(가)','(나)'][i];
+      imgHtml += `<div class="img-item"><img src="${img(im)}" alt="${cap}" onclick="openFullscreen('${img(im)}')" onerror="this.style.display='none'"><div class="img-caption">${cap}</div></div>`;
+    });
+    imgHtml += `</div>`;
+  }
+
+  // 보기 HTML
+  let choiceHtml = `<div class="q-num">Q.${String(q.id).padStart(3,'0')}</div>`;
+  choiceHtml += `<div class="q-text">${q.q}</div>`;
+
+  const isElimMode = memoMode || quizMode==='wrong';
+
+  // ── 보기이미지 문제 처리 ──
+  if (q.choices_img) {
+    const cImgUrl = choicesImg(q.id);
+    choiceHtml += `<div style="margin:8px 0;border-radius:10px;overflow:hidden;background:#000;border:1px solid var(--border);cursor:pointer;" onclick="openFullscreen('${cImgUrl}')">
+      <img src="${cImgUrl}" style="width:100%;display:block;" onerror="this.parentElement.style.display='none'">
+    </div>`;
+    choiceHtml += `<div class="choices choices-num-only">`;
+    [1,2,3,4,5].forEach(n => {
+      let cls = 'choice-btn choice-num-btn';
+      if(isAns){ if(n===q.a) cls+=' correct'; else if(n===selected[curIdx]) cls+=' wrong'; }
+      choiceHtml += `<div class="${cls}" onclick="doAnswer(${n})"><div class="choice-num">${n}</div></div>`;
+    });
+    choiceHtml += `</div>`;
+  } else {
+    choiceHtml += `<div class="choices">`;
+    if (isElimMode && !isAns) {
+      q.c.forEach((c, i) => {
+        choiceHtml += `<div class="choice-btn" onclick="doAnswer(${i+1})">
+          <div class="choice-num">${i+1}</div>
+          <div class="choice-text">${c}</div>
+        </div>`;
+      });
+    } else {
+      q.c.forEach((c, i) => {
+        let cls = 'choice-btn';
+        if(isAns){ if(i+1===q.a) cls+=' correct'; else if(i+1===selected[curIdx]) cls+=' wrong'; }
+        choiceHtml += `<div class="${cls}" onclick="doAnswer(${i+1})">
+          <div class="choice-num">${i+1}</div>
+          <div class="choice-text">${c}</div>
+        </div>`;
+      });
+    }
+    choiceHtml += `</div>`;
+  }
+
+  if (isAns) {
+    const ok = selected[curIdx]===q.a;
+    const streak = memoStreak[curIdx] || 0;
+    const streakHtml = isElimMode ? `<div style="display:flex;gap:4px;margin-bottom:6px;">${[0,1,2].map(i=>`<div class="memo-dot ${i<streak?'filled':''}"></div>`).join('')}</div>` : '';
+    choiceHtml += `<div class="explanation show">
+      ${streakHtml}
+      <div class="ex-result ${ok?'ok':'fail'}">${ok?'✓ 정답!':'✗ 오답'} — 정답: ${q.a}번</div>
+      ${q.ex ? `<div class="ex-content">${q.ex}</div>` : ''}
+    </div>`;
+  }
+
+  // 가로 레이아웃 래퍼
+  let html = '';
+  if(imgHtml && !q.choices_img) {
+    html = `<div class="quiz-content-wrap">
+      <div class="quiz-img-side">${imgHtml}</div>
+      <div class="quiz-choice-side">${choiceHtml}</div>
+    </div>`;
+  } else if(imgHtml && q.choices_img) {
+    // 참조사진 + 보기이미지: 참조사진을 위에
+    html = `<div>${imgHtml}${choiceHtml}</div>`;
+  } else {
+    html = choiceHtml;
+  }
+
+  document.getElementById('quizBody').innerHTML = html;
+  document.getElementById('quizScreen').scrollTo(0, 0);
+}
+
+function doAnswer(n) {
+  if (answered[curIdx]) return;
+  const q = curQueue[curIdx];
+  answered[curIdx] = true;
+  selected[curIdx] = n;
+  const ok = (n === q.a);
+  if (!ok) {
+    wrongMap[q.id] = (wrongMap[q.id]||0)+1;
+  } else {
+    wrongMap['_ok_'+q.id] = (wrongMap['_ok_'+q.id]||0)+1;
+  }
+  saveWrong();
+  if (memoMode) {
+    memoStreak[curIdx] = ok ? (memoStreak[curIdx]||0)+1 : 0;
+    memoStreakMap[q.id] = memoStreak[curIdx];
+    saveMemoStreak();
+  }
+  renderQuiz();
+  scheduleAutoNext(ok);
+}
+
+function nextQ() {
+  clearAutoTimer();
+  if (curIdx < curQueue.length-1) {
+    // 암기모드 or 오답풀기: 3연속 정답 시 제거
+    const isElimMode = memoMode || quizMode === 'wrong';
+    if (isElimMode && answered[curIdx] && selected[curIdx]===curQueue[curIdx].a) {
+      if ((memoStreak[curIdx]||0)>=3) {
+        curQueue.splice(curIdx,1); answered.splice(curIdx,1); selected.splice(curIdx,1); memoStreak.splice(curIdx,1);
+        if(curIdx>=curQueue.length) curIdx=curQueue.length-1;
+        if(curQueue.length===0){ showResult(); return; }
+        renderQuiz(); return;
+      }
+    }
+    curIdx++; renderQuiz();
+  } else { showResult(); }
+}
+
+function prevQ() { clearAutoTimer(); if(curIdx>0){ curIdx--; renderQuiz(); } }
+
+// ════════════════════════════════════════════
+// 미니맵
+// ════════════════════════════════════════════
+function openMinimap() {
+  const total = curQueue.length;
+  document.getElementById('minimapSub').textContent = `${curIdx+1}번째 / 전체 ${total}문제`;
+  const grid = document.getElementById('minimapGrid');
+  grid.innerHTML = curQueue.map((q, i) => {
+    let cls = 'mm-cell';
+    if(i===curIdx) cls+=' current';
+    else if(answered[i]) { cls += selected[i]===q.a ? ' answered-ok' : ' answered-fail'; }
+    return `<div class="${cls}" onclick="jumpToIdx(${i})">${i+1}</div>`;
+  }).join('');
+  document.getElementById('minimapOverlay').classList.add('show');
+  setTimeout(()=>{ const cur=grid.querySelector('.current'); if(cur) cur.scrollIntoView({block:'center'}); }, 50);
+}
+
+function closeMinimap() { document.getElementById('minimapOverlay').classList.remove('show'); }
+
+function jumpToIdx(i) {
+  closeMinimap();
+  curIdx = i;
+  clearAutoTimer();
+  renderQuiz();
+}
+
+// ════════════════════════════════════════════
+// 결과
+// ════════════════════════════════════════════
+function showResult() {
+  if(quizMode === 'cumul') { showCumulResult(); return; }
+  clearAutoTimer();
+  if(quizMode === 'exam') { stopExamTimer(); closeTimerBanner(); }
+  const total = curQueue.length;
+  const correct = answered.filter((a,i) => a&&selected[i]===curQueue[i].a).length;
+  const wrong = answered.filter((a,i) => a&&selected[i]!==curQueue[i].a).length;
+  const skip = total - answered.filter(Boolean).length;
+  document.getElementById('resultScore').innerHTML = `${correct}<span>/${total}</span>`;
+  document.getElementById('resultLabel').textContent = `정답률 ${Math.round(correct/total*100)}%`;
+  document.getElementById('rCorrect').textContent = correct;
+  document.getElementById('rWrong').textContent = wrong;
+  document.getElementById('rSkip').textContent = skip;
+  showScreen('resultScreen');
+}
+
+function reviewWrong() {
+  const wrongQs = curQueue.filter((q,i) => answered[i]&&selected[i]!==q.a);
+  if(wrongQs.length===0){ showToast('오답이 없어요! 🎉'); return; }
+  curQueue = wrongQs; curIdx=0;
+  answered = new Array(wrongQs.length).fill(false);
+  selected = new Array(wrongQs.length).fill(null);
+  renderQuiz(); showScreen('quizScreen');
+}
+
+// ════════════════════════════════════════════
+// 목록
+// ════════════════════════════════════════════
+function showList(type) {
+  const isBm = type==='bookmark';
+  document.getElementById('listTitle').textContent = isBm ? '북마크 목록' : '오답 목록';
+  let qs = isBm ? Q.filter(q=>bmMap[q.id]) : Q.filter(q=>(wrongMap[q.id]||0)>0).sort((a,b)=>(wrongMap[b.id]||0)-(wrongMap[a.id]||0));
+  document.getElementById('listSub').textContent = `${qs.length}문제`;
+  const list = document.getElementById('wrongList');
+  if(qs.length===0){
+    list.innerHTML=`<div class="empty-state"><div class="icon">${isBm?'📌':'🎯'}</div>${isBm?'북마크한 문제가 없어요.':'오답이 없어요!'}</div>`;
+  } else {
+    list.innerHTML = qs.map(q=>{
+      const badge = isBm ? `<div class="bm-badge">★</div>` : `<div class="wrong-badge">${wrongMap[q.id]||0}</div>`;
+      return `<div class="wrong-item" onclick="jumpToQ(${q.id})">${badge}<div class="wrong-q"><span class="tag">Q${String(q.id).padStart(3,'0')}</span>${q.q}</div></div>`;
+    }).join('');
+  }
+  showScreen('listScreen');
+}
+
+function jumpToQ(qId) {
+  const idx = Q.findIndex(q=>q.id===qId); if(idx<0) return;
+  curQueue=[...Q]; curIdx=idx;
+  answered=new Array(Q.length).fill(false); selected=new Array(Q.length).fill(null);
+  quizMode='full'; memoMode=false;
+  document.getElementById('modeBadge').textContent='📋 전체';
+  document.getElementById('quizBackBtn').onclick=()=>showSubject();
+  updateAutoNextBadge(); renderQuiz(); showScreen('quizScreen');
+}
+
+// ════════════════════════════════════════════
+// 빠른 정답 확인
+// ════════════════════════════════════════════
+// ════════════════════════════════════════════
+// 빠른 정답 확인 (탭 + 챕터 필터)
+// ════════════════════════════════════════════
+let qaTab = 'all'; // 'all' | 'wrong'
+let qaChFilter = 0; // 0=전체, 챕터 id
+
+function showQA() {
+  qaTab = 'all';
+  qaChFilter = 0;
+  document.getElementById('qaSub').textContent = `${Q.length}문제`;
+  // 챕터 필터 버튼 렌더
+  const filterEl = document.getElementById('qaChapterFilter');
+  filterEl.innerHTML = [
+    `<div class="qa-filter-btn active" data-ch="0" onclick="setQaChFilter(0)">전체</div>`,
+    ...curSubj.chapters.map(ch =>
+      `<div class="qa-filter-btn" data-ch="${ch.id}" onclick="setQaChFilter(${ch.id})">CH${ch.id}</div>`)
+  ].join('');
+  renderQaList();
+  showScreen('qaScreen');
+}
+
+function setQaTab(tab) {
+  qaTab = tab;
+  document.getElementById('qaTabAll').style.background = tab==='all' ? 'var(--accent)' : 'var(--bg3)';
+  document.getElementById('qaTabAll').style.color = tab==='all' ? '#fff' : 'var(--text2)';
+  document.getElementById('qaTabAll').style.borderColor = tab==='all' ? 'var(--accent)' : 'var(--border)';
+  document.getElementById('qaTabWrong').style.background = tab==='wrong' ? 'var(--red)' : 'var(--bg3)';
+  document.getElementById('qaTabWrong').style.color = tab==='wrong' ? '#fff' : 'var(--text2)';
+  document.getElementById('qaTabWrong').style.borderColor = tab==='wrong' ? 'var(--red)' : 'var(--border)';
+  renderQaList();
+}
+
+function setQaChFilter(chId) {
+  qaChFilter = chId;
+  document.querySelectorAll('.qa-filter-btn').forEach(btn => {
+    const active = Number(btn.dataset.ch) === chId;
+    btn.classList.toggle('active', active);
+  });
+  renderQaList();
+}
+
+function renderQaList() {
+  let pool = [...Q];
+  if(qaChFilter > 0) pool = pool.filter(q => q.ch === qaChFilter);
+  if(qaTab === 'wrong') pool = pool.filter(q => (wrongMap[q.id]||0) > 0);
+  document.getElementById('qaSub').textContent = `${pool.length}문제`;
+
+  const list = document.getElementById('qaList');
+  if(pool.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="icon">🎯</div>해당 조건의 문제가 없어요!</div>`;
+    return;
+  }
+  list.innerHTML = pool.map(q=>{
+    const imgs = q.imgs || [];
+    let imgHtml = '';
+    if(imgs.length === 1) {
+      imgHtml = `<div style="margin:6px 0;border-radius:8px;overflow:hidden;background:#000;border:1px solid var(--border);max-width:200px;"><img src="${img(imgs[0])}" style="width:100%;max-height:120px;object-fit:contain;display:block;cursor:pointer;" onclick="openFullscreen('${img(imgs[0])}')" onerror="this.parentElement.style.display='none'"></div>`;
+    } else if(imgs.length >= 2) {
+      imgHtml = `<div style="display:grid;grid-template-columns:${imgs.length>=3?'1fr 1fr 1fr':'1fr 1fr'};gap:4px;margin:6px 0;">`;
+      imgs.forEach((im,i)=>{ const cap=imgs.length>=3?['(가)','(나)','(다)'][i]:['(가)','(나)'][i]; imgHtml+=`<div style="border-radius:6px;overflow:hidden;background:#000;border:1px solid var(--border);"><img src="${img(im)}" style="width:100%;max-height:80px;object-fit:contain;display:block;cursor:pointer;" onclick="openFullscreen('${img(im)}')" onerror="this.parentElement.style.display='none'"><div style="font-size:9px;color:var(--text3);text-align:center;padding:2px;">${cap}</div></div>`; });
+      imgHtml += `</div>`;
+    }
+    const ansText = q.c[q.a-1] || '';
+    const failCnt = wrongMap[q.id] || 0;
+    return `<div class="qa-item" onclick="jumpToQ(${q.id})" style="flex-direction:column;align-items:flex-start;gap:6px;">
+      <div style="display:flex;align-items:center;gap:8px;width:100%;">
+        <div class="qa-num">Q${String(q.id).padStart(3,'0')}</div>
+        <div class="qa-text" style="flex:1;margin:0;">${q.q}</div>
+        ${failCnt>0?`<div style="font-size:10px;color:var(--red);font-weight:800;background:rgba(239,71,111,0.1);border-radius:6px;padding:2px 6px;flex-shrink:0;">오답 ${failCnt}회</div>`:''}
+      </div>
+      ${imgHtml}
+      <div style="display:flex;align-items:flex-start;gap:8px;width:100%;padding-left:4px;">
+        <div class="qa-ans" style="flex-shrink:0;">정답 ${q.a}번</div>
+        <div style="font-size:12px;color:var(--green);line-height:1.5;">${ansText}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════
+// 북마크
+// ════════════════════════════════════════════
+document.getElementById('bookmarkBtn').onclick = () => {
+  if(!curQueue.length) return;
+  const q = curQueue[curIdx];
+  bmMap[q.id] = !bmMap[q.id];
+  if(!bmMap[q.id]) delete bmMap[q.id];
+  saveBm(); renderQuiz();
+  showToast(bmMap[q.id] ? '★ 북마크 추가' : '북마크 해제');
+};
+
+// ════════════════════════════════════════════
+// 이미지 전체화면
+// ════════════════════════════════════════════
+function openFullscreen(src) { document.getElementById('fullscreenImg').src=src; document.getElementById('imgFullscreen').classList.add('show'); }
+function closeFullscreen() { document.getElementById('imgFullscreen').classList.remove('show'); }
+
+// ════════════════════════════════════════════
+// 리셋
+// ════════════════════════════════════════════
+function confirmResetWrong() {
+  showModal('오답 리셋', `[${curSubj.name}] 오답·정답 기록을 모두 초기화할까요?`, [
+    {label:'초기화', color:'var(--red)', bg:'rgba(239,71,111,0.1)', border:'rgba(239,71,111,0.25)', fn:()=>{
+      // _ok_ 키 포함 전체 삭제
+      Object.keys(wrongMap).forEach(k=>delete wrongMap[k]);
+      saveWrong(); closeModal(); updateSubjStats(); renderSubjectMenu(); showToast('오답·정답 기록 리셋 완료');
+    }},
+    {label:'취소', color:'var(--text2)', bg:'var(--bg3)', border:'var(--border)', fn:closeModal}
+  ]);
+}
+function confirmResetBm() {
+  showModal('북마크 리셋', `[${curSubj.name}] 북마크를 모두 삭제할까요?`, [
+    {label:'삭제', color:'var(--red)', bg:'rgba(239,71,111,0.1)', border:'rgba(239,71,111,0.25)', fn:()=>{ bmMap={}; saveBm(); closeModal(); updateSubjStats(); renderSubjectMenu(); showToast('북마크 리셋 완료'); }},
+    {label:'취소', color:'var(--text2)', bg:'var(--bg3)', border:'var(--border)', fn:closeModal}
+  ]);
+}
+function confirmResetMemo() {
+  showModal('암기 리셋', `[${curSubj.name}] 암기 스트릭(연속정답 기록)을 초기화할까요?`, [
+    {label:'초기화', color:'var(--red)', bg:'rgba(239,71,111,0.1)', border:'rgba(239,71,111,0.25)', fn:()=>{ memoStreakMap={}; saveMemoStreak(); closeModal(); showToast('암기 스트릭 리셋 완료'); }},
+    {label:'취소', color:'var(--text2)', bg:'var(--bg3)', border:'var(--border)', fn:closeModal}
+  ]);
+}
+
+// ════════════════════════════════════════════
+// 암기모드
+// ════════════════════════════════════════════
+function openMemoMode() {
+  document.getElementById('memoPageSub').textContent = curSubj.name;
+  showScreen('memoScreen');
+}
+
+function showMemoChapterScreen() {
+  document.getElementById('memoChSub').textContent = curSubj.name;
+  renderMemoChapterList();
+  showScreen('memoChScreen');
+}
+
+function startMemoAll(order) {
+  let pool = order==='random' ? shuffle([...Q]) : [...Q];
+  pool = pool.filter(q => (memoStreakMap[q.id]||0) < 3);
+  if(pool.length===0) { showToast('모든 문제를 완료했어요! 🎉 암기 초기화 후 다시 시작하세요.'); return; }
+  _startMemoQuiz(pool, order==='random'?'🧠 전체랜덤':'🧠 전체순서');
+}
+
+function startMemoChapter(chId) {
+  // 챕터 선택 시 팝업으로 순서/랜덤 선택
+  const ch = curSubj.chapters.find(c=>c.id===chId);
+  showModal(`CH${chId} ${ch?ch.name:''}`, '암기 방식을 선택하세요', [
+    {label:'📋 순서대로', color:'var(--accent)', bg:'rgba(122,162,247,0.12)', border:'rgba(122,162,247,0.3)', fn:()=>{ closeModal(); _startMemoChQuiz(chId,'order'); }},
+    {label:'🔀 랜덤', color:'#7fd3df', bg:'rgba(86,182,194,0.12)', border:'rgba(86,182,194,0.3)', fn:()=>{ closeModal(); _startMemoChQuiz(chId,'random'); }},
+    {label:'취소', color:'var(--text2)', bg:'var(--bg3)', border:'var(--border)', fn:closeModal}
+  ]);
+}
+
+function _startMemoChQuiz(chId, order) {
+  let pool = Q.filter(q=>q.ch===chId);
+  if(order==='random') pool = shuffle(pool);
+  pool = pool.filter(q => (memoStreakMap[q.id]||0) < 3);
+  if(pool.length===0) { showToast('이 챕터는 모두 완료했어요! 🎉'); return; }
+  const ch = curSubj.chapters.find(c=>c.id===chId);
+  _startMemoQuiz(pool, `🧠 CH${chId}`);
+}
+
+function _startMemoQuiz(pool, label) {
+  quizMode = 'memo';
+  memoMode = true;
+  curQueue = pool;
+  curIdx = 0;
+  answered = new Array(pool.length).fill(false);
+  selected = new Array(pool.length).fill(null);
+  memoStreak = pool.map(q => memoStreakMap[q.id]||0);
+  document.getElementById('modeBadge').textContent = label;
+  document.getElementById('quizBackBtn').onclick = ()=>{
+    clearAutoTimer();
+    showModal('나가기','풀기를 중단하고 나가시겠어요?',[
+      {label:'나가기',color:'var(--red)',bg:'rgba(239,71,111,0.1)',border:'rgba(239,71,111,0.25)',fn:()=>{closeModal();showScreen('memoScreen');}},
+      {label:'계속하기',color:'var(--text2)',bg:'var(--bg3)',border:'var(--border)',fn:closeModal}
+    ]);
+  };
+  updateAutoNextBadge();
+  renderQuiz();
+  showScreen('quizScreen');
+}
+
+function renderMemoChapterList() {
+  const list = document.getElementById('memoChapterList');
+  list.innerHTML = curSubj.chapters.map(ch => {
+    const qs = Q.filter(q=>q.ch===ch.id);
+    const done = qs.filter(q=>(memoStreakMap[q.id]||0)>=3).length;
+    const total = qs.length;
+    const wCount = qs.filter(q=>(wrongMap[q.id]||0)>0).length;
+    return `<div class="ch-item" onclick="startMemoChapter(${ch.id})">
+      <div class="ch-badge">CH${ch.id}</div>
+      <div class="ch-info">
+        <div class="ch-name">${ch.name}</div>
+        <div class="ch-meta">${total}문제 · 완료 ${done}/${total}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        ${done===total ? `<div class="cumul-progress">✓완료</div>` : wCount>0?`<div class="ch-wrong-badge">오답 ${wCount}</div>`:''}
+        <div class="subj-arrow">›</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════
+// 누적풀기
+// ════════════════════════════════════════════
+let cumulBlockSize = 20;
+let cumulMode = 'order';
+let cumulCurrentBlock = null;
+let cumulWrongIds = [];
+let cumulSkip = 0; // 앞에서 건너뛸 문제 수
+
+function loadCumulSettings() {
+  try {
+    const s=JSON.parse(localStorage.getItem('rv2_cumul')||'{}');
+    cumulBlockSize=[10,20,30].includes(Number(s.size))?Number(s.size):20;
+    cumulSkip = Number(s.skip)||0;
+  } catch{}
+}
+function saveCumulSettings() {
+  try{localStorage.setItem('rv2_cumul',JSON.stringify({size:cumulBlockSize, skip:cumulSkip}));}catch{}
+}
+
+function updateCumulSkip(val) {
+  cumulSkip = Math.max(0, Math.min(Q.length-1, parseInt(val)||0));
+  saveCumulSettings();
+  // 배지 업데이트
+  const badge = document.getElementById('cumulSkipBadge');
+  const numEl = document.getElementById('cumulSkipNum');
+  if(badge && numEl) {
+    numEl.textContent = cumulSkip;
+    badge.style.display = cumulSkip > 0 ? 'inline-flex' : 'none';
+  }
+  renderCumulBlocks();
+}
+
+function resetCumulSkip() {
+  cumulSkip = 0;
+  saveCumulSettings();
+  const input = document.getElementById('cumulSkipInput');
+  if(input) input.value = '';
+  const badge = document.getElementById('cumulSkipBadge');
+  if(badge) badge.style.display = 'none';
+  renderCumulBlocks();
+}
+
+function showCumul() {
+  loadCumulSettings();
+  document.getElementById('cumulPageSub').textContent = curSubj.name;
+  // update mode buttons
+  document.getElementById('cumulOrderBtn').classList.toggle('active', cumulMode==='order');
+  document.getElementById('cumulRandomBtn').classList.toggle('active', cumulMode==='random');
+  // update size buttons
+  document.querySelectorAll('#cumulSizeBtns .settings-time-btn').forEach(btn=>{
+    btn.classList.toggle('active', Number(btn.dataset.size)===cumulBlockSize);
+  });
+  // 건너뛰기 복원
+  const badge = document.getElementById('cumulSkipBadge');
+  const input = document.getElementById('cumulSkipInput');
+  const numEl = document.getElementById('cumulSkipNum');
+  if(cumulSkip > 0) {
+    if(numEl) numEl.textContent = cumulSkip;
+    if(badge) badge.style.display = 'inline-flex';
+    if(input) input.value = cumulSkip;
+  } else {
+    if(badge) badge.style.display = 'none';
+    if(input) input.value = '';
+  }
+  renderCumulBlocks();
+  showScreen('cumulScreen');
+}
+
+function setCumulMode(m) {
+  cumulMode = m;
+  document.getElementById('cumulOrderBtn').classList.toggle('active', m==='order');
+  document.getElementById('cumulRandomBtn').classList.toggle('active', m==='random');
+  renderCumulBlocks();
+}
+
+function setCumulSize(n) {
+  cumulBlockSize = n;
+  saveCumulSettings();
+  document.querySelectorAll('#cumulSizeBtns .settings-time-btn').forEach(btn=>{
+    btn.classList.toggle('active', Number(btn.dataset.size)===n);
+  });
+  renderCumulBlocks();
+}
+
+function renderCumulBlocks() {
+  // 건너뛰기: skip번부터 시작
+  // 블록1: skip~skip+size, 블록2: skip~skip+size*2, 블록3: skip~skip+size*3 ...
+  const baseQ = Q.slice(cumulSkip); // 건너뛰기 이후 전체
+  const total = baseQ.length;
+  const blocks = [];
+  for(let i=cumulBlockSize; i<=total; i+=cumulBlockSize) {
+    blocks.push({pool: baseQ.slice(0,i), endIdx: cumulSkip+i});
+  }
+  // 마지막 블록이 딱 떨어지지 않으면 나머지 추가
+  if(total % cumulBlockSize !== 0) {
+    blocks.push({pool: baseQ.slice(0,total), endIdx: cumulSkip+total});
+  }
+  const list = document.getElementById('cumulBlockList');
+  list.innerHTML = blocks.map((b,idx)=>{
+    const cnt = b.pool.length;
+    const wCnt = b.pool.filter(q=>(wrongMap[q.id]||0)>0).length;
+    const startNum = cumulSkip+1;
+    const endNum = b.endIdx;
+    const label = `${startNum}~${endNum}번 (${cnt}문제)`;
+    return `<div class="cumul-block-item" onclick="startCumulBlock(${idx})">
+      <div class="cumul-badge">B${idx+1}</div>
+      <div class="cumul-info">
+        <div class="cumul-name">${label}</div>
+        <div class="cumul-meta">${cnt}문제 누적</div>
+      </div>
+      ${wCnt>0?`<div class="cumul-progress">오답 ${wCnt}</div>`:'<div class="subj-arrow">›</div>'}
+    </div>`;
+  }).join('');
+  window._cumulBlocks = blocks;
+}
+
+function startCumulBlock(idx) {
+  const blocks = window._cumulBlocks || [];
+  if(!blocks[idx]) return;
+  let pool = [...blocks[idx].pool];
+  if(cumulMode==='random') pool = shuffle(pool);
+  cumulCurrentBlock = {idx, ids: pool.map(q=>q.id)};
+  cumulWrongIds = [];
+  quizMode = 'cumul';
+  memoMode = false;
+  curQueue = pool;
+  curIdx = 0;
+  answered = new Array(pool.length).fill(false);
+  selected = new Array(pool.length).fill(null);
+  document.getElementById('modeBadge').textContent = `📈 블록${idx+1}`;
+  document.getElementById('quizBackBtn').onclick = ()=>{
+    clearAutoTimer();
+    showModal('나가기','풀기를 중단하고 나가시겠어요?',[
+      {label:'나가기',color:'var(--red)',bg:'rgba(239,71,111,0.1)',border:'rgba(239,71,111,0.25)',fn:()=>{closeModal();showCumul();}},
+      {label:'계속하기',color:'var(--text2)',bg:'var(--bg3)',border:'var(--border)',fn:closeModal}
+    ]);
+  };
+  updateAutoNextBadge();
+  renderQuiz();
+  showScreen('quizScreen');
+}
+
+function showCumulResult() {
+  clearAutoTimer();
+  const correct = answered.filter((a,i)=>a&&selected[i]===curQueue[i].a).length;
+  const wrong = answered.filter((a,i)=>a&&selected[i]!==curQueue[i].a).length;
+  cumulWrongIds = curQueue.filter((q,i)=>answered[i]&&selected[i]!==q.a).map(q=>q.id);
+  document.getElementById('cumulResultTitle').textContent = `블록 ${cumulCurrentBlock.idx+1} 결과`;
+  document.getElementById('cumulResultSub').textContent = `정답 ${correct} / 오답 ${wrong} / 전체 ${curQueue.length}`;
+  const wList = document.getElementById('cumulResultWrongList');
+  wList.innerHTML = cumulWrongIds.map(id=>{
+    const q = Q.find(x=>x.id===id);
+    return `<div style="font-size:12px;color:var(--text2);background:var(--bg3);border-radius:8px;padding:8px 10px;"><span style="color:var(--red);font-weight:700;margin-right:6px;">Q${String(id).padStart(3,'0')}</span>${q?q.q.substring(0,40)+'…':''}</div>`;
+  }).join('');
+  const retryBtn = document.getElementById('cumulRetryBtn');
+  retryBtn.style.display = cumulWrongIds.length>0 ? 'flex' : 'none';
+  document.getElementById('cumulResultModal').classList.add('show');
+}
+
+function closeCumulResult() {
+  document.getElementById('cumulResultModal').classList.remove('show');
+  showCumul();
+}
+
+function retryCumulWrong() {
+  closeCumulResult();
+  let pool = Q.filter(q=>cumulWrongIds.includes(q.id));
+  if(cumulMode==='random') pool = shuffle(pool);
+  curQueue = pool;
+  curIdx = 0;
+  answered = new Array(pool.length).fill(false);
+  selected = new Array(pool.length).fill(null);
+  document.getElementById('modeBadge').textContent = `📈 블록오답`;
+  renderQuiz();
+  showScreen('quizScreen');
+}
+
+// ════════════════════════════════════════════
+// 모달
+// ════════════════════════════════════════════
+function showModal(title, sub, btns) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalSub').textContent = sub;
+  document.getElementById('modalBtns').innerHTML = btns.map((b,i)=>
+    `<button class="modal-btn" style="background:${b.bg||'var(--bg3)'};color:${b.color||'var(--text)'};border:1px solid ${b.border||'var(--border)'};" onclick="modalAction(${i})">${b.label}</button>`
+  ).join('');
+  document.getElementById('modalOverlay').classList.add('show');
+  window._modalFns = btns.map(b=>b.fn);
+}
+function modalAction(i) { if(window._modalFns&&window._modalFns[i]) window._modalFns[i](); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+
+// ════════════════════════════════════════════
+// 토스트
+// ════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1500);
+}
+
+
+// ════════════════════════════════════════════
+// 모의고사 모드
+// ════════════════════════════════════════════
+let examTimerInterval = null;
+
+function showExamSetup() {
+  document.getElementById('examSetupSub').textContent = curSubj.name;
+  document.getElementById('examTotalQ').textContent = Q.length;
+  document.getElementById('examQCount').value = '';
+  document.getElementById('examMinutes').value = '';
+  document.getElementById('examQWarn').style.display = 'none';
+  showScreen('examSetupScreen');
+}
+
+function setExamMin(m) { document.getElementById('examMinutes').value = m; }
+
+function validateExamInput() {
+  const n = parseInt(document.getElementById('examQCount').value)||0;
+  document.getElementById('examQWarn').style.display = n > Q.length ? 'block' : 'none';
+}
+
+function startExam() {
+  const n = parseInt(document.getElementById('examQCount').value)||0;
+  const mins = parseInt(document.getElementById('examMinutes').value)||0;
+  if(!n || n < 1) { showToast('문제 수를 입력하세요!'); return; }
+  if(n > Q.length) { showToast(`전체 ${Q.length}문제를 초과할 수 없어요!`); return; }
+
+  const pool = shuffle([...Q]).slice(0, n);
+  quizMode = 'exam';
+  memoMode = false;
+  curQueue = pool;
+  curIdx = 0;
+  answered = new Array(pool.length).fill(false);
+  selected = new Array(pool.length).fill(null);
+  memoStreak = [];
+
+  document.getElementById('modeBadge').textContent = `📝 모의고사 ${n}문제`;
+  document.getElementById('quizBackBtn').onclick = ()=>{
+    clearAutoTimer();
+    stopExamTimer();
+    showModal('시험 종료', '모의고사를 종료하시겠어요?', [
+      {label:'종료', color:'var(--red)', bg:'rgba(239,71,111,0.1)', border:'rgba(239,71,111,0.25)', fn:()=>{ closeModal(); showSubject(); }},
+      {label:'계속', color:'var(--text2)', bg:'var(--bg3)', border:'var(--border)', fn:closeModal}
+    ]);
+  };
+  updateAutoNextBadge();
+  renderQuiz();
+  showScreen('quizScreen');
+  if(mins > 0) startExamTimer(mins * 60);
+}
+
+function startExamTimer(seconds) {
+  stopExamTimer();
+  const endTime = Date.now() + seconds * 1000;
+  examTimerInterval = setInterval(() => {
+    const left = Math.max(0, Math.round((endTime - Date.now()) / 1000));
+    const m = Math.floor(left/60).toString().padStart(2,'0');
+    const s = (left%60).toString().padStart(2,'0');
+    const badge = document.getElementById('autoNextBadge');
+    if(badge && quizMode==='exam') {
+      badge.textContent = `⏱ ${m}:${s}`;
+      badge.style.color = left<=60 ? 'var(--red)' : 'var(--accent)';
+      badge.style.background = left<=60 ? 'rgba(239,71,111,0.15)' : 'rgba(122,162,247,0.1)';
+      badge.style.borderColor = left<=60 ? 'rgba(239,71,111,0.4)' : 'rgba(122,162,247,0.25)';
+    }
+    if(left <= 0) { stopExamTimer(); showExamBanner(); }
+  }, 1000);
+}
+
+function stopExamTimer() {
+  if(examTimerInterval){ clearInterval(examTimerInterval); examTimerInterval=null; }
+}
+
+function showExamBanner() {
+  const b = document.getElementById('examTimerBanner');
+  if(b) b.style.display='block';
+}
+
+function closeTimerBanner() {
+  const b = document.getElementById('examTimerBanner');
+  if(b) b.style.display='none';
+}
+
+// ════════════════════════════════════════════
+// 초기화
+// ════════════════════════════════════════════
+renderHome();
+updateAutoNextBadge();
+loadCumulSettings();
+</script>
+</body>
+</html>
